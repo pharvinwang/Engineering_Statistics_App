@@ -43,7 +43,7 @@ if check_password():
     
     col1, col2 = st.columns(2)
     with col1:
-        st.info("👨‍🏫 **班級資訊**\n*  **土木系工程統計**。\n* 核心教材：*Modern Engineering Statistics 《工程統計》 * (Lawrence L. Lapin 著 潘南飛,溫志中 編譯)")
+        st.info("👨‍🏫 **班級資訊**\n*  **土木與水資源工程學系 工程統計**。\n* 使用教材：*Modern Engineering Statistics 《工程統計》 * (Lawrence L. Lapin 著 潘南飛,溫志中 編譯)")
     with col2:
         st.success("🗺️ **課程階段**\n* 第一階段：數據描述與機率風險 (W1-W7)\n* 第二階段：抽樣推論與工程設計值 (W9-W15)")
         
@@ -53,3 +53,4 @@ if check_password():
     """)
         
     st.sidebar.success("👆 請從上方選單選擇學習週次。")
+
