@@ -3,7 +3,7 @@ import streamlit as st
 from utils.style import apply_theme
 
 # 1. 基本設定 (必須在第一行)
-st.set_page_config(page_title="工程統計學：數據驅動的風險導航", layout="wide")
+st.set_page_config(page_title="工程統計：數據驅動的風險導航", layout="wide")
 
 # 2. 載入我們剛剛寫好的統一視覺樣式
 apply_theme()
@@ -16,7 +16,7 @@ def check_password():
         st.session_state.password_correct = False
 
     if not st.session_state.password_correct:
-        st.title("🛡️ 工程統計學 - 課程登入")
+        st.title("🛡️ 工程統計 - 課程登入")
         st.info("請輸入課程專屬密碼以進入互動平台。")
         pwd = st.text_input("🔑 密碼", type="password")
         if st.button("登入"):
@@ -43,7 +43,7 @@ if check_password():
     
     col1, col2 = st.columns(2)
     with col1:
-        st.info("👨‍🏫 **班級資訊**\n* 支援 **日間部** 與 **進修部（夜間）**。\n* 核心教材：*Modern Engineering Statistics 《工程統計》 * (Lawrence L. Lapin 著 潘南飛,溫志中 編譯)")
+        st.info("👨‍🏫 **班級資訊**\n*  **土木系工程統計**。\n* 核心教材：*Modern Engineering Statistics 《工程統計》 * (Lawrence L. Lapin 著 潘南飛,溫志中 編譯)")
     with col2:
         st.success("🗺️ **課程階段**\n* 第一階段：數據描述與機率風險 (W1-W7)\n* 第二階段：抽樣推論與工程設計值 (W9-W15)")
         
