@@ -1,1 +1,18 @@
+[theme]
+# 基底設為淺色，確保純白大表格與深色卡片能完美對比
+base = "light"
 
+# 主要強調色（按鈕、Slider 滑桿、載入動畫）
+primaryColor = "#3b82f6"
+
+# 主頁面背景色（純白）
+backgroundColor = "#ffffff"
+
+# 側邊欄與次要元件的背景色
+secondaryBackgroundColor = "#f8fafc"
+
+# 主要文字色
+textColor = "#334155"
+
+# 字體
+font = "sans-serif"
