@@ -139,7 +139,7 @@ if check_password():
         </div>
         <div style="color:#f1f5f9;font-size:2.3rem;font-weight:900;
                     margin:0 0 6px 0;line-height:1.2;">
-            工程統計：從工程現象到決策 📐
+            工程統計：數據驅動的風險導航 📐
         </div>
         <div style="color:#94a3b8;font-size:1.02rem;margin:0 0 26px 0;">
             Engineering Statistics — Data-Driven Risk Navigation
@@ -184,6 +184,7 @@ if check_password():
         """, unsafe_allow_html=True)
 
     with col_b:
+        # ✅ 修正：四個正確階段（依教學大綱）
         st.markdown("""
         <div class="home-fade-2" style="
             background:#f0fdf4;border:1px solid #bbf7d0;
@@ -199,11 +200,15 @@ if check_password():
                     ▶ 進行中
                 </span>
             </div>
-            <div style="color:#166534;font-size:0.92rem;line-height:1.9;">
+            <div style="color:#166534;font-size:0.88rem;line-height:1.9;">
                 📊 <strong>第一階段</strong>：數據描述與機率風險<br>
-                <span style="color:#16a34a;font-size:0.82rem;padding-left:1.4em;">W1 – W7</span><br>
-                📐 <strong>第二階段</strong>：抽樣推論與工程設計值<br>
-                <span style="color:#86efac;font-size:0.82rem;padding-left:1.4em;">W9 – W15</span>
+                <span style="color:#16a34a;font-size:0.80rem;padding-left:1.4em;">W1 – W5</span><br>
+                🔬 <strong>第二階段</strong>：抽樣推論與工程設計值<br>
+                <span style="color:#16a34a;font-size:0.80rem;padding-left:1.4em;">W6 – W7</span><br>
+                ⚖️ <strong>第三階段</strong>：統計檢定與工法比較<br>
+                <span style="color:#16a34a;font-size:0.80rem;padding-left:1.4em;">W9 – W11</span><br>
+                📐 <strong>第四階段</strong>：模型預測・DOE・品質放行<br>
+                <span style="color:#86efac;font-size:0.80rem;padding-left:1.4em;">W12 – W15</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -226,9 +231,9 @@ if check_password():
             <div style="background:rgba(255,255,255,0.08);border-radius:6px;
                         height:7px;margin:0 0 6px 0;overflow:hidden;">
                 <div style="background:linear-gradient(90deg,#3b82f6,#60a5fa);
-                            width:18%;height:100%;border-radius:6px;"></div>
+                            width:13%;height:100%;border-radius:6px;"></div>
             </div>
-            <div style="color:#64748b;font-size:0.8rem;margin:0 0 14px 0;">Week 2 / 15 完成</div>
+            <div style="color:#64748b;font-size:0.8rem;margin:0 0 14px 0;">Week 2 / 16 完成</div>
             <div style="color:#64748b;font-size:0.8rem;line-height:1.6;">
                 👈 請從左側選單<br>選擇本週週次開始
             </div>
@@ -250,23 +255,24 @@ if check_password():
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Week 卡片 Row 1 ─────────────────────────────────────────────
+    # ── Week 卡片 Row 1（W01–W04）────────────────────────────────────
+    # ✅ 修正：章節描述依教學大綱；Week03 改 #0369a1（禁用 #6366f1）
     weeks_r1 = [
-        ("01","統計在工程決策中的角色",
-         "資料型態、母體與樣本、統計工程應用",
-         "#3b82f6","#eff6ff","#1e40af","✅ 已開放"),
-        ("02","統計資料之描述與陳示",
-         "次數分配、位置測度、差異性量度、比例",
-         "#22c55e","#f0fdf4","#166534","✅ 已開放"),
-        ("03","機率概念與規則",
-         "機率公理、條件機率、貝氏定理",
-         "#6366f1","#eef2ff","#3730a3","🔒 即將開放"),
-        ("04","機率分配",
-         "期望值、二項分配、超幾何分配",
-         "#f59e0b","#fffbeb","#92400e","🔒 即將開放"),
+        ("01", "統計在工程決策中的角色",
+         "§1.1–1.6｜資料型態、母體與樣本、統計工程應用",
+         "#3b82f6", "#eff6ff", "#1e40af", "✅ 已開放"),
+        ("02", "統計資料之描述與探討",
+         "§2.1–2.4｜次數分配、位置測度、差異性量度、比例",
+         "#22c55e", "#f0fdf4", "#166534", "✅ 已開放"),
+        ("03", "機率與系統可靠度",
+         "§3.1–3.5｜條件機率、串並聯系統失效風險",
+         "#0369a1", "#e0f2fe", "#0c4a6e", "🔒 即將開放"),
+        ("04", "離散機率分配",
+         "§4.1–4.3｜二項分配、品管抽驗合格率",
+         "#f59e0b", "#fffbeb", "#92400e", "🔒 即將開放"),
     ]
     cols_r1 = st.columns(4)
-    for col, (wk,title,desc,hc,bc,tc,status) in zip(cols_r1, weeks_r1):
+    for col, (wk, title, desc, hc, bc, tc, status) in zip(cols_r1, weeks_r1):
         locked = "🔒" in status
         op = "0.52" if locked else "1"
         with col:
@@ -286,24 +292,94 @@ if check_password():
 
     st.markdown('<div style="height:10px"></div>', unsafe_allow_html=True)
 
-    # ── Week 卡片 Row 2 ─────────────────────────────────────────────
+    # ── Week 卡片 Row 2（W05–W08）────────────────────────────────────
+    # ✅ 修正：章節描述依教學大綱；Week08 為期中考試
     weeks_r2 = [
-        ("05","常態分配",
-         "標準常態分配、常態近似、中央極限定理",
-         "#ec4899","#fdf2f8","#9d174d","🔒 即將開放"),
-        ("06","抽樣分配",
-         "樣本均值分配、t 分配、χ² 分配",
-         "#14b8a6","#f0fdfa","#134e4a","🔒 即將開放"),
-        ("07","估計",
-         "點估計、信賴區間、樣本大小決定",
-         "#8b5cf6","#f5f3ff","#4c1d95","🔒 即將開放"),
-        ("08","期中考評量",
-         "第 1–7 週核心概念總整理與評量",
-         "#ef4444","#fef2f2","#991b1b","🗓️ 期中評量"),
+        ("05", "連續機率分配與壽命工程",
+         "§5.1–5.6｜常態分配、Weibull 分配、浴缸型故障率",
+         "#ec4899", "#fdf2f8", "#9d174d", "🔒 即將開放"),
+        ("06", "抽樣分配與中央極限定理",
+         "§6.1–6.6｜CLT、樣本均值分配、t 分配",
+         "#14b8a6", "#f0fdfa", "#134e4a", "🔒 即將開放"),
+        ("07", "點估計與信賴區間",
+         "§7.1–7.6｜信賴區間、Student-t、樣本大小",
+         "#8b5cf6", "#f5f3ff", "#4c1d95", "🔒 即將開放"),
+        ("08", "期中考試",
+         "第 1–7 週核心概念整合評量",
+         "#ef4444", "#fef2f2", "#991b1b", "🗓️ 期中考試"),
     ]
     cols_r2 = st.columns(4)
-    for col, (wk,title,desc,hc,bc,tc,status) in zip(cols_r2, weeks_r2):
-        locked = True
+    for col, (wk, title, desc, hc, bc, tc, status) in zip(cols_r2, weeks_r2):
+        with col:
+            st.markdown(f"""
+            <div class="week-card home-fade-5" style="opacity:0.52;">
+                <div style="background:{hc};color:white;font-size:0.74rem;font-weight:800;
+                    padding:2px 10px;border-radius:20px;display:inline-block;
+                    margin:0 0 10px 0;letter-spacing:0.06em;">WEEK {wk}</div>
+                <div style="color:#0f172a;font-size:0.96rem;font-weight:800;
+                    line-height:1.3;margin:0 0 7px 0;">{title}</div>
+                <div style="color:#64748b;font-size:0.80rem;line-height:1.55;
+                    margin:0 0 12px 0;">{desc}</div>
+                <div style="background:{bc};color:{tc};font-size:0.75rem;font-weight:700;
+                    padding:3px 10px;border-radius:6px;display:inline-block;">{status}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('<div style="height:10px"></div>', unsafe_allow_html=True)
+
+    # ── Week 卡片 Row 3（W09–W12）────────────────────────────────────
+    # ✅ 新增：W09–W11 第三階段（原版缺少）
+    weeks_r3 = [
+        ("09", "統計假設檢定程序",
+         "§8.1–8.2｜H₀、型 I / II 誤差、生產者與消費者風險",
+         "#7c3aed", "#f5f3ff", "#4c1d95", "🔒 即將開放"),
+        ("10", "母體比例與兩母體比較",
+         "§8.3–8.4｜單尾／雙尾檢定、兩工法方案比較",
+         "#7c3aed", "#f5f3ff", "#4c1d95", "🔒 即將開放"),
+        ("11", "變異數分析 (ANOVA)",
+         "§9.1–9.6｜單因子、雙因子 ANOVA、隨機集區",
+         "#d97706", "#fffbeb", "#92400e", "🔒 即將開放"),
+        ("12", "迴歸分析（前半）",
+         "§10.1–10.9｜線性迴歸、判定係數、共線性陷阱",
+         "#0f766e", "#f0fdfa", "#134e4a", "🔒 即將開放"),
+    ]
+    cols_r3 = st.columns(4)
+    for col, (wk, title, desc, hc, bc, tc, status) in zip(cols_r3, weeks_r3):
+        with col:
+            st.markdown(f"""
+            <div class="week-card home-fade-5" style="opacity:0.52;">
+                <div style="background:{hc};color:white;font-size:0.74rem;font-weight:800;
+                    padding:2px 10px;border-radius:20px;display:inline-block;
+                    margin:0 0 10px 0;letter-spacing:0.06em;">WEEK {wk}</div>
+                <div style="color:#0f172a;font-size:0.96rem;font-weight:800;
+                    line-height:1.3;margin:0 0 7px 0;">{title}</div>
+                <div style="color:#64748b;font-size:0.80rem;line-height:1.55;
+                    margin:0 0 12px 0;">{desc}</div>
+                <div style="background:{bc};color:{tc};font-size:0.75rem;font-weight:700;
+                    padding:3px 10px;border-radius:6px;display:inline-block;">{status}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('<div style="height:10px"></div>', unsafe_allow_html=True)
+
+    # ── Week 卡片 Row 4（W13–W16）────────────────────────────────────
+    # ✅ 新增：W13–W16 第四階段 + 期末考試（原版缺少）
+    weeks_r4 = [
+        ("13", "迴歸分析與多維數據決策（後半）",
+         "§10.1–10.9｜多維決策、7 天強度預測拆模案例",
+         "#0f766e", "#f0fdfa", "#134e4a", "🔒 即將開放"),
+        ("14", "實驗設計 (DOE)",
+         "§11.1–11.3｜因子設計、交互作用、田口方法",
+         "#3b82f6", "#eff6ff", "#1e40af", "🔒 即將開放"),
+        ("15", "製程能力與產品放行決策",
+         "§12.1–12.4｜Cpk、管制圖、抽樣驗收",
+         "#3b82f6", "#eff6ff", "#1e40af", "🔒 即將開放"),
+        ("16", "期末考試",
+         "全學期核心概念整合評量",
+         "#ef4444", "#fef2f2", "#991b1b", "🗓️ 期末考試"),
+    ]
+    cols_r4 = st.columns(4)
+    for col, (wk, title, desc, hc, bc, tc, status) in zip(cols_r4, weeks_r4):
         with col:
             st.markdown(f"""
             <div class="week-card home-fade-5" style="opacity:0.52;">
@@ -341,6 +417,163 @@ if check_password():
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    st.markdown('<div style="height:24px"></div>', unsafe_allow_html=True)
+
+    # ── 課程地圖：週次與課本章節對照表 ─────────────────────────────
+    # ✅ 新增區塊（依教學大綱，16 週完整對照）
+    st.markdown('''
+    <div style="background:linear-gradient(90deg,#2563eb 0%,#3b82f6 100%);
+        border-radius:10px;padding:10px 24px;margin:0 0 6px 0;">
+        <span style="color:#ffffff;font-size:1.1rem;font-weight:800;">
+            🗓️ 課程地圖：週次與課本章節對照表
+        </span>
+    </div>
+    <p style="color:#94a3b8;font-size:0.85rem;margin:0 0 10px 4px;">
+        本課程依據《工程統計》Lapin 著，共分四個學習階段，請依序完成各週互動實驗與測驗。
+    </p>
+    ''', unsafe_allow_html=True)
+
+    _phase_colors = {
+        "第一階段": "#0369a1",
+        "第二階段": "#0f766e",
+        "第三階段": "#7c3aed",
+        "第四階段": "#d97706",
+        "考試":     "#475569",
+    }
+
+    _course_map = [
+        ("Week 01", "第 1 章",  "§1.1–1.6",  "統計在工程決策中的角色",              "The Role of Statistics in Engineering",       "第一階段"),
+        ("Week 02", "第 2 章",  "§2.1–2.4",  "統計資料之描述與探討",                "Describing & Presenting Statistical Data",    "第一階段"),
+        ("Week 03", "第 3 章",  "§3.1–3.5",  "機率與系統可靠度",                    "Probability & System Reliability",            "第一階段"),
+        ("Week 04", "第 4 章",  "§4.1–4.3",  "離散機率分配",                        "Discrete Probability Distributions",          "第一階段"),
+        ("Week 05", "第 5 章",  "§5.1–5.6",  "連續機率分配與壽命工程",              "Continuous Distributions & Life Engineering", "第一階段"),
+        ("Week 06", "第 6 章",  "§6.1–6.6",  "抽樣分配與中央極限定理",              "Sampling Distributions & CLT",                "第二階段"),
+        ("Week 07", "第 7 章",  "§7.1–7.6",  "點估計與信賴區間",                    "Estimation & Confidence Intervals",           "第二階段"),
+        ("Week 08", "—",        "—",          "期中考試",                            "Midterm Examination",                         "考試"),
+        ("Week 09", "第 8 章",  "§8.1–8.2",  "統計假設檢定程序",                    "Hypothesis Testing Procedures",               "第三階段"),
+        ("Week 10", "第 8 章",  "§8.3–8.4",  "母體比例與兩母體比較",                "Proportions & Two-Population Tests",          "第三階段"),
+        ("Week 11", "第 9 章",  "§9.1–9.6",  "變異數分析 (ANOVA)",                  "Analysis of Variance",                        "第三階段"),
+        ("Week 12", "第 10 章", "§10.1–10.9","迴歸分析（前半）",                    "Regression Analysis (Part 1)",                "第四階段"),
+        ("Week 13", "第 10 章", "§10.1–10.9","迴歸分析與多維數據決策（後半）",       "Regression & Multivariate Decision",          "第四階段"),
+        ("Week 14", "第 11 章", "§11.1–11.3","實驗設計 (DOE)",                      "Design of Experiments",                       "第四階段"),
+        ("Week 15", "第 12 章", "§12.1–12.4","製程能力與產品放行決策",              "Process Capability & SPC",                    "第四階段"),
+        ("Week 16", "—",        "—",          "期末考試",                            "Final Examination",                           "考試"),
+    ]
+
+    _rows = ""
+    for _i, (_wk, _ch, _sec, _zh, _en, _phase) in enumerate(_course_map):
+        _bg = "#f8fafc" if _i % 2 == 0 else "#ffffff"
+        _pc = _phase_colors.get(_phase, "#475569")
+        _rows += (
+            f'<tr style="background:{_bg};">'
+            f'<td style="padding:8px 14px;font-weight:700;color:#1e40af;white-space:nowrap;">{_wk}</td>'
+            f'<td style="padding:8px 14px;white-space:nowrap;">'
+            f'<span style="background:{_pc};color:white;font-size:0.72rem;font-weight:700;'
+            f'padding:2px 8px;border-radius:10px;">{_phase}</span></td>'
+            f'<td style="padding:8px 14px;color:#0369a1;white-space:nowrap;">{_ch}</td>'
+            f'<td style="padding:8px 14px;color:#64748b;font-size:0.85rem;white-space:nowrap;">{_sec}</td>'
+            f'<td style="padding:8px 14px;color:#0f172a;font-weight:600;">{_zh}</td>'
+            f'<td style="padding:8px 14px;color:#94a3b8;font-size:0.82rem;">{_en}</td>'
+            f'</tr>'
+        )
+
+    st.markdown(
+        '<div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0;'
+        'box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:6px;">'
+        '<table style="width:100%;border-collapse:collapse;font-size:0.92rem;">'
+        '<thead><tr style="background:#1e3a5f;">'
+        '<th style="padding:10px 14px;color:#93c5fd;text-align:left;white-space:nowrap;">週次</th>'
+        '<th style="padding:10px 14px;color:#93c5fd;text-align:left;white-space:nowrap;">學習階段</th>'
+        '<th style="padding:10px 14px;color:#93c5fd;text-align:left;white-space:nowrap;">課本章節</th>'
+        '<th style="padding:10px 14px;color:#93c5fd;text-align:left;white-space:nowrap;">節次</th>'
+        '<th style="padding:10px 14px;color:#93c5fd;text-align:left;">主題（中文）</th>'
+        '<th style="padding:10px 14px;color:#93c5fd;text-align:left;">Topic (English)</th>'
+        '</tr></thead>'
+        '<tbody>' + _rows + '</tbody>'
+        '</table></div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown('''
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 24px 0;">
+        <span style="background:#0369a1;color:white;font-size:0.75rem;font-weight:700;
+            padding:3px 12px;border-radius:12px;">
+            第一階段：數據描述與機率風險 (W1–W5)</span>
+        <span style="background:#0f766e;color:white;font-size:0.75rem;font-weight:700;
+            padding:3px 12px;border-radius:12px;">
+            第二階段：抽樣推論與工程設計值 (W6–W7)</span>
+        <span style="background:#7c3aed;color:white;font-size:0.75rem;font-weight:700;
+            padding:3px 12px;border-radius:12px;">
+            第三階段：統計檢定與工法比較 (W9–W11)</span>
+        <span style="background:#d97706;color:white;font-size:0.75rem;font-weight:700;
+            padding:3px 12px;border-radius:12px;">
+            第四階段：模型預測・DOE・品質放行 (W12–W15)</span>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # ── 版權聲明 ─────────────────────────────────────────────────────
+    # ✅ 新增區塊
+    st.divider()
+
+    st.markdown('''
+    <div style="border-radius:14px;overflow:hidden;
+        box-shadow:0 2px 12px rgba(0,0,0,0.08);
+        border:1px solid #e2e8f0;margin:8px 0 20px 0;">
+        <div style="background:#1e3a5f;padding:12px 22px;
+            display:flex;align-items:center;gap:10px;">
+            <span style="color:#93c5fd;font-size:1.2rem;">©</span>
+            <span style="color:#f1f5f9;font-weight:800;font-size:0.97rem;">
+                教材版權聲明 · Educational Use Disclaimer
+            </span>
+        </div>
+        <div style="background:#f8fafc;padding:18px 22px;
+            color:#334155;font-size:0.88rem;line-height:1.9;">
+            <p style="margin:0 0 12px 0;">
+                本互動式學習平台為<strong>教學輔助工具</strong>，
+                其互動實驗室、視覺化圖表、程式碼及測驗題目均為<strong>原創設計</strong>，
+                旨在幫助修課學生透過互動方式加深對統計概念的理解。
+            </p>
+            <p style="margin:0 0 10px 0;">
+                部分<strong>課本例題場景、數據與術語</strong>引用自下列著作，
+                僅供課堂教學說明之用，<strong>非商業用途，未重製原著文字內容</strong>：
+            </p>
+            <div style="background:#eff6ff;border-left:4px solid #3b82f6;
+                border-radius:0 6px 6px 0;padding:11px 18px;
+                margin:10px 0 14px 0;font-size:0.87rem;color:#1e40af;line-height:1.9;">
+                <strong>Lawrence L. Lapin</strong> 著；潘南飛、溫志中 編譯<br>
+                《工程統計》（<em>Modern Engineering Statistics</em>）修訂三版<br>
+                Cengage Learning Asia Pte. Ltd.，2021
+                　<strong>ISBN 978-957-9282-94-9</strong>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;background:#f0fdf4;
+                    border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;">
+                    <div style="color:#166534;font-weight:700;font-size:0.85rem;margin-bottom:4px;">
+                        ✅ 本平台的原創部分</div>
+                    <div style="color:#334155;font-size:0.83rem;line-height:1.7;">
+                        互動實驗室設計 · 視覺化圖表<br>
+                        測驗題目 · Streamlit 程式碼 · 工程情境案例
+                    </div>
+                </div>
+                <div style="flex:1;min-width:200px;background:#fef9c3;
+                    border:1px solid #fde68a;border-radius:8px;padding:10px 14px;">
+                    <div style="color:#92400e;font-weight:700;font-size:0.85rem;margin-bottom:4px;">
+                        ⚠️ 引用自課本的部分</div>
+                    <div style="color:#334155;font-size:0.83rem;line-height:1.7;">
+                        部分例題數據（如表 2.6）· 專有名詞<br>
+                        章節架構參照 · 公式符號表示
+                    </div>
+                </div>
+            </div>
+            <p style="margin:14px 0 0 0;color:#64748b;font-size:0.82rem;
+                border-top:1px solid #e2e8f0;padding-top:10px;">
+                ⚠️ 本平台內容受著作權保護。學生請勿將本平台內容截圖、複製、錄製或散佈於授課範圍外。
+                如對版權有任何疑問，請聯繫授課教師。
+            </p>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
 
     # ── 側邊欄 ──────────────────────────────────────────────────────
     st.sidebar.markdown("""
