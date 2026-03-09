@@ -25,6 +25,25 @@ def init_connection():
 
 SPREADSHEET_ID = "1HPUEl3cAzfxwTvkcVU1PU9bBxqvWdX4NWjRbuZ9Qlcg"
 
+# 👇 新增的密碼讀取函數，ttl=3600 代表快取保留 1 小時，保護您的 API 額度 👇
+@st.cache_data(ttl=3600)
+def get_weekly_password(week_name):
+    """從 Google 試算表的「測驗密碼」分頁中抓取該週的解鎖密碼"""
+    try:
+        client = init_connection()  # 取得連線授權
+        sheet = client.open_by_key(SPREADSHEET_ID).worksheet("測驗密碼")
+        records = sheet.get_all_records()
+        
+        # 尋找對應週次的密碼
+        for row in records:
+            if str(row.get("週次", "")).strip() == week_name:
+                return str(row.get("密碼", "")).strip()
+        
+        return None 
+    except Exception as e:
+        print(f"讀取密碼發生錯誤: {e}")
+        return None
+
 def verify_student(student_id, name, v_code):
     """【防偷窺機制】驗證身分，若成功則順便回傳該生的「編號」"""
     try:
