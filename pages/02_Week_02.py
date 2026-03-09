@@ -31,7 +31,7 @@ except ImportError:
     def get_weekly_password(*a, **k): return "888888"
 
 # ── Card helper ─────────────────────────────────────────────
-def _card(color, bg, tc, title, msg, fstr=False):
+def _card(color, bg, tc, title, msg):
     html = (
         f'<div style="border-radius:12px;overflow:hidden;'
         f'box-shadow:0 2px 10px rgba(0,0,0,0.07);'
@@ -46,7 +46,7 @@ def _card(color, bg, tc, title, msg, fstr=False):
 
 # ── 登入防護 ──────────────────────────────────────────────
 if "password_correct" not in st.session_state or not st.session_state.password_correct:
-    st.markdown("""
+    st.markdown('''
     <div style="
         max-width: 380px;
         margin: 60px auto 0 auto;
@@ -75,37 +75,55 @@ if "password_correct" not in st.session_state or not st.session_state.password_c
             👈 請點選左側導覽列的 <strong>Home</strong> 進行登入
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
     st.stop()
 
 
 # =====================================================================
 # 標題與學習地圖
 # =====================================================================
-st.markdown(
-    '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#0f2440 100%);'
-    'border-radius:16px;padding:28px 40px 24px 40px;'
-    'margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,0.2);text-align:center;">'
-    '<div style="color:#f1f5f9;font-size:2.2rem;font-weight:900;margin:0 0 8px 0;">'
-    'Week 02&#65372;&#32479;&#35336;&#36039;&#26009;&#20043;&#25묘&#36848;&#12289;&#38515;&#31034;&#21450;&#25216;&#35676; 📊</div>'
-    '<div style="color:#94a3b8;font-size:1.05rem;margin:0;">'
-    'Describing, Presenting and Exploring Statistical Data · Chapter 2</div>'
-    '</div>',
-    unsafe_allow_html=True)
+# ✅ 修正：中文標題改用 ''' 純字串，不使用 f-string，避免輸出 HTML entity 亂碼
+st.markdown('''
+<div style="background:linear-gradient(135deg,#1e3a5f 0%,#0f2440 100%);
+    border-radius:16px;padding:28px 40px 24px 40px;
+    margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,0.2);text-align:center;">
+    <div style="color:#f1f5f9;font-size:2.2rem;font-weight:900;margin:0 0 8px 0;">
+        Week 02｜統計資料之描述、顯示及技術 📊
+    </div>
+    <div style="color:#94a3b8;font-size:1.05rem;margin:0 0 10px 0;">
+        Describing, Presenting and Exploring Statistical Data · Chapter 2
+    </div>
+    <div style="display:inline-flex;align-items:center;gap:8px;
+        background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);
+        border-radius:20px;padding:5px 16px;">
+        <span style="color:#93c5fd;font-size:0.82rem;">📖</span>
+        <span style="color:#e2e8f0;font-size:0.82rem;font-weight:600;">課本第 2 章 · §2.1–2.4</span>
+        <span style="color:#64748b;font-size:0.78rem;">｜《工程統計》Lapin 著</span>
+    </div>
+</div>
+''', unsafe_allow_html=True)
 
-st.markdown(
-    '<div style="background:#eff6ff;border-left:5px solid #3b82f6;border-radius:8px;'
-    'padding:12px 20px;color:#1e40af;font-size:1.05rem;margin-bottom:16px;line-height:1.6;">'
-    '📌 本週學習路線：請依序點選下方各小節的標簺，完成理論閱讀與互動實驗。'
-    '完成所有標簺後，再挑戰最後的<strong>整合性總測驗</strong>！</div>',
-    unsafe_allow_html=True)
+# ✅ 修正：學習路線框改為 A 型青綠卡（v1.1 規範），移除舊 B 型藍色左邊框寫法
+st.markdown('''
+<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);
+            border:1px solid #99f6e4;margin:0 0 18px 0;">
+    <div style="background:#0f766e;padding:9px 18px;">
+        <span style="color:white;font-weight:700;font-size:1.0rem;">📌 本週學習路線</span>
+    </div>
+    <div style="background:#f0fdfa;padding:13px 18px;color:#134e4a;font-size:1.05rem;line-height:1.7;">
+        請依序點選下方各小節的標籤，完成理論閱讀與互動實驗。
+        完成所有標籤後，再挑戰最後的<strong>整合性總測驗</strong>！
+    </div>
+</div>
+''', unsafe_allow_html=True)
 
-st.markdown(
-    '<div style="background:linear-gradient(90deg,#2563eb 0%,#3b82f6 100%);'
-    'border-radius:10px;padding:12px 24px;margin:0 0 6px 0;">'
-    '<span style="color:#fff;font-size:1.3rem;font-weight:800;">📚 1. 核心理論與互動實驗室</span></div>',
-    unsafe_allow_html=True)
-st.markdown('<p style="color:#94a3b8;font-size:0.88rem;margin:0 0 10px 4px;">👆 請依序點選下方各小節標簺，完成理論閱讀與互動實驗</p>', unsafe_allow_html=True)
+st.markdown('''
+<div style="background:linear-gradient(90deg,#2563eb 0%,#3b82f6 100%);
+    border-radius:10px;padding:12px 24px;margin:0 0 6px 0;">
+    <span style="color:#ffffff;font-size:1.3rem;font-weight:800;">📚 1. 核心理論與互動實驗室</span>
+</div>
+''', unsafe_allow_html=True)
+st.markdown('<p style="color:#94a3b8;font-size:0.88rem;margin:0 0 10px 4px;">👆 請依序點選下方各小節標籤，完成理論閱讀與互動實驗</p>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 2.1 次數分配",
@@ -124,14 +142,14 @@ with tab1:
           "直接蒐集、尚未整理的資料稱為 <b>原始資料 (raw data)</b>。"
           "將原始資料分類整理，就是 <b>敘述統計 (descriptive statistics)</b> 的主要工作。")
 
-    st.markdown("""
+    st.markdown('''
     <div class="why-box">
     <b>🔧 為什麼工程師需要這個？</b><br>
     想像你量測了 200 根螺栓的直徑——這 200 個數字本身無法告訴你任何事。
     把它們「整理成次數分配表、畫成直方圖」後，你才能看出：<br>
     • 大部分直徑集中在哪裡？&nbsp;&nbsp;• 有沒有異常的極端值？&nbsp;&nbsp;• 分佈是否對稱？
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
     st.markdown('''
     <div style="display:flex;gap:14px;margin:10px 0 14px 0;background:#f0fdfa;padding:14px;border-radius:14px;">
@@ -169,12 +187,12 @@ with tab1:
     ''', unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("""
+    st.markdown('''
     <div class="discover-box">
     <b>🔬 發現式實驗室 A：組距的黃金平衡</b><br>
     拖動滑桿，親眼看看「組距設太細」與「設太粗」各自的問題。
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
     with st.expander("🛠️ 展開實驗室 A：從原始資料到直方圖（認識組距的影響）", expanded=False):
         st.markdown('''
@@ -227,7 +245,7 @@ with tab1:
         ))
         set_chart_layout(fig_demo, f"直方圖 — 分 {n_bins_demo} 組（組距 ≈ {bin_width:.1f} mm）", "直徑 (mm)", "次數")
         fig_demo.update_layout(
-            bargap=0.02, height=380,
+            bargap=0.02, height=420,
             yaxis=dict(range=[0, y_max_hist]),
             margin=dict(t=50, b=40, l=50, r=20)
         )
@@ -243,14 +261,14 @@ with tab1:
         elif n_bins_demo >= 40:
             _card("#f59e0b","#fffbeb","#92400e","⚠️ 組數過多",f"出現 {n_empty} 個空組，雜訊太多，反而看不清楚整體趨勢。")
         else:
-            _card("#22c55e","#f0fdf4","#166534","✅ 組數適中",f"分佈形狀清晰可辨，兩個群集清楚可見！")
+            _card("#22c55e","#f0fdf4","#166534","✅ 組數適中","分佈形狀清晰可辨，兩個群集清楚可見！")
 
-        st.markdown("""
+        st.markdown('''
         <div class="discover-box">
         💡 <b>實驗結論</b>：組數大約取 <b>√n</b>（樣本數的平方根）是個好的起點。
         分組的目的是「化繁為簡」，不是保留所有細節，也不是過度壓縮。
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
     with st.expander("🛠️ 展開實驗室 B：Ogive 累積次數多邊形（工程規格查核利器）", expanded=False):
         st.markdown('''
@@ -315,13 +333,13 @@ with tab1:
                                       font=dict(color="white", size=F_ANNOTATION))
 
             set_chart_layout(fig_og, "累積次數多邊形 (Ogive)", "數值", "累積百分比 (%)")
-            fig_og.update_layout(height=360, yaxis=dict(range=[0, 108]),
+            fig_og.update_layout(height=420, yaxis=dict(range=[0, 108]),
                                  margin=dict(t=50, b=40, l=50, r=20))
             st.plotly_chart(fig_og, use_container_width=True)
         except Exception:
             _card("#ef4444","#fef2f2","#991b1b","❌ 格式錯誤","請確保輸入的是以逗號分隔的數字。")
 
-    _card("#d97706","#fffbeb","#92400e","💡 2.1 隨堂小測驗","請根據直方圖的概念作答：")
+    _card("#d97706","#fef3c7","#92400e","💡 2.1 隨堂小測驗","請根據直方圖的概念作答：")
     q_tab1 = st.radio("📍 **在繪製工程數據的直方圖時，如果將「組距」設定得非常小（分組數極多），會發生什麼現象？**",
         ["請選擇...", "A. 直方圖會變成一條完美的平滑曲線，呈現最詳細的資料分佈", "B. 會產生過多空組與雜訊，反而失去彙總資料的意義"], key="q_tab1")
     if st.button("送出答案", key="btn_t1"):
@@ -343,20 +361,24 @@ with tab2:
 
     st.markdown('''
     <div style="display:flex;gap:16px;margin:12px 0;background:#f5f3ff;padding:14px;border-radius:14px;">
-        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
+        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
             <div style="background:#7c3aed;padding:9px 16px;">
                 <span style="color:white;font-weight:700;font-size:0.95rem;">📐 算術平均數</span>
             </div>
-            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;font-size:1.05rem;line-height:1.9;text-align:center;">
+            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;
+                        font-size:1.05rem;line-height:1.9;text-align:center;">
                 X&#772; = &#931; X&#7522; / n<br>
                 <small style="color:#7c3aed;font-size:0.88rem;">所有觀測值加總 ÷ 個數</small>
             </div>
         </div>
-        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
+        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
             <div style="background:#7c3aed;padding:9px 16px;">
                 <span style="color:white;font-weight:700;font-size:0.95rem;">📐 中位數 (m)</span>
             </div>
-            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;font-size:1.05rem;line-height:1.9;text-align:center;">
+            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;
+                        font-size:1.05rem;line-height:1.9;text-align:center;">
                 排序後位於正中間的值<br>
                 <small style="color:#7c3aed;font-size:0.88rem;">
                     n 為奇數 → 第 (n+1)/2 個值<br>
@@ -367,21 +389,21 @@ with tab2:
     </div>
     ''', unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown('''
     <div class="why-box">
     <b>🔧 為什麼工程師需要區分兩者？</b><br>
     • <b>平均數</b>：反映「整體總量」，但容易被極端值拉偏，就像一個重量很大的砝碼把蹺蹺板壓歪。<br>
     • <b>中位數</b>：反映「典型狀況」，對極端值有抵抗力。適合描述「一般情況下」的狀態。<br>
     工程師必須根據場景選擇正確的量數，才不會做出誤導性的報告！
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
-    # ─── 新增實驗室 A：分組資料加權平均數逐步引導 ───────────────────
+    # ─── 實驗室 A：分組資料加權平均數逐步引導 ───────────────────────
     with st.expander("🛠️ 展開實驗室 A：分組資料加權平均數逐步引導（課本表 2.6 互動版）", expanded=False):
         st.markdown('''
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #0369a1;
                     border-radius:8px;padding:10px 16px;margin:0 0 14px 0;">
-            <div style="color:#7c3aed;font-size:0.85rem;font-weight:700;letter-spacing:0.05em;
+            <div style="color:#0369a1;font-size:0.85rem;font-weight:700;letter-spacing:0.05em;
                         text-transform:uppercase;margin-bottom:5px;">🎯 本實驗室教學目的</div>
             <div style="color:#334155;font-size:1.0rem;line-height:1.7;">
                 <b>學習目標：</b>學會在只有次數分配表時，用「組中點 × 次數」的加權方式計算近似平均數，
@@ -429,7 +451,7 @@ with tab2:
         st.markdown("---")
 
         # ── 步驟二：填入組中點 ──
-        _card("#0369a1","#f0f9ff","#0c4a6e","✏️ 步驟二：計算各組的組中點 mₖ",
+        _card("#0369a1","#e0f2fe","#0c4a6e","✏️ 步驟二：計算各組的組中點 mₖ",
               "組中點 = (組下限 + 組上限) ÷ 2，代表「該組資料的典型值」。"
               "請在下方為<b>前三組</b>填入組中點，系統會自動驗證並補全其餘各組。")
 
@@ -462,7 +484,7 @@ with tab2:
         st.markdown("---")
 
         # ── 步驟三：計算 fₖ × mₖ ──
-        _card("#0369a1","#f0f9ff","#0c4a6e","✏️ 步驟三：計算加權值 fₖ × mₖ",
+        _card("#0369a1","#e0f2fe","#0c4a6e","✏️ 步驟三：計算加權值 fₖ × mₖ",
               "每一組的「次數 × 組中點」= 該組所有資料加總的近似值。"
               "請填入<b>第 3 組</b>（次數=29，組中點=13.5）的 fₖ × mₖ 值：")
 
@@ -503,14 +525,15 @@ with tab2:
             st.markdown("---")
 
             # ── 步驟四：填入最終平均數 ──
-            _card("#0369a1","#f0f9ff","#0c4a6e","✏️ 步驟四：計算加權平均數 X̄",
+            _card("#0369a1","#e0f2fe","#0c4a6e","✏️ 步驟四：計算加權平均數 X̄",
                   "X̄ = Σ(fₖ × mₖ) / n，請填入計算結果（保留兩位小數）：")
 
             mean_input = st.number_input("X̄ = Σ(fₖ × mₖ) / n = 1442.0 / 100 = ?",
                                           value=0.0, step=0.01, format="%.2f", key="lab_mean")
             if mean_input != 0:
                 if abs(mean_input - true_mean) < 0.01:
-                    _card("#22c55e","#f0fdf4","#166534",f"🎊 完全正確！X̄ = {true_mean:.2f} 秒",
+                    _card("#22c55e","#f0fdf4","#166534",
+                          f"🎊 完全正確！X̄ = {true_mean:.2f} 秒",
                           "1442.0 ÷ 100 = <b>14.42 秒</b>。"
                           "（真實原始資料計算得 14.342 秒，分組後略有差異，這是「以組中點代替原始值」帶來的近似誤差。）")
                     st.session_state["lab_mean_done"] = True
@@ -527,11 +550,10 @@ with tab2:
 
                 bin_centers_lab = true_midpoints
                 freqs_lab = [g["freq"] for g in groups_lab]
-                bin_w_lab = 1.0
 
                 fig_lab = go.Figure()
                 fig_lab.add_trace(go.Bar(
-                    x=bin_centers_lab, y=freqs_lab, width=bin_w_lab * 0.95,
+                    x=bin_centers_lab, y=freqs_lab, width=0.95,
                     marker_color="#a78bfa",
                     text=freqs_lab, textposition="outside", textfont=dict(size=13),
                     hovertemplate="組中點: %{x:.1f} 秒<br>次數: %{y}<extra></extra>",
@@ -547,7 +569,7 @@ with tab2:
 
                 set_chart_layout(fig_lab, "儀器校正時間次數分配 ── 分組加權平均數 vs 原始平均數", "時間（秒）", "次數")
                 fig_lab.update_layout(
-                    height=400,
+                    height=420,
                     yaxis=dict(range=[0, 38]),
                     margin=dict(t=60, b=40, l=50, r=20)
                 )
@@ -555,7 +577,7 @@ with tab2:
 
                 # 中位數估算互動
                 st.markdown("---")
-                _card("#0369a1","#f0f9ff","#0c4a6e","💡 延伸思考：中位數在哪一組？",
+                _card("#0369a1","#e0f2fe","#0c4a6e","💡 延伸思考：中位數在哪一組？",
                       "累積次數到哪一組剛好超過 50%（即超過第 50 筆）？那一組就是<b>中位數所在組</b>。")
 
                 cum_freqs_lab = np.cumsum(freqs_lab)
@@ -586,14 +608,14 @@ with tab2:
                               "找到累積次數剛好「跨過第50筆」的那一組——"
                               "第3組累積 47 筆（不夠），第4組累積 74 筆（超過了）。第50筆在哪裡？")
 
-                st.markdown("""
+                st.markdown('''
                 <div class="discover-box">
                 💡 <b>本實驗室結論</b>：<br>
                 1. 分組資料的加權平均數 = Σ(fₖ × mₖ) / n，組中點是「代理人」。<br>
                 2. 分組後的平均數（14.42秒）與原始資料（14.342秒）略有差異——資訊壓縮必然帶來近似誤差。<br>
                 3. 中位數所在組可由累積次數表直接找到：找第一個「累積次數 ≥ n/2」的組別。
                 </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
         else:
             if not step2_done:
                 st.info("💡 請先完成步驟二（正確填入前三組組中點），再繼續步驟三。")
@@ -606,7 +628,7 @@ with tab2:
                     del st.session_state[k]
             st.rerun()
 
-    # ─── 原實驗室 A（現改為實驗室 B）：極端值的拉力戰 ───────────────
+    # ─── 實驗室 B：極端值的拉力戰 ────────────────────────────────────
     with st.expander("🛠️ 展開實驗室 B：極端值的拉力戰（互動發現）", expanded=False):
         st.markdown('''
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #0369a1;
@@ -648,26 +670,26 @@ with tab2:
                            annotation_text=f"中位數: {median_v:.1f}",
                            annotation_position=pos_med, annotation_font_size=F_ANNOTATION)
         set_chart_layout(fig_skew, f"資料分佈 — 含 {out_cnt} 個異常值（大小={out_val}），SK = {sk_v:.3f}", "數值", "次數")
-        fig_skew.update_layout(height=360, margin=dict(t=60, b=40, l=50, r=20))
+        fig_skew.update_layout(height=420, margin=dict(t=60, b=40, l=50, r=20))
         st.plotly_chart(fig_skew, use_container_width=True)
 
         if out_cnt == 0:
-            _card("#3b82f6","#eff6ff","#1e40af","📊 目前無異常値","平均數與中位數幾乎重合（正態分佈的特徵）。")
+            _card("#3b82f6","#eff6ff","#1e40af","📊 目前無異常值","平均數與中位數幾乎重合（正態分佈的特徵）。")
         elif out_cnt <= 5:
-            _card("#f59e0b","#fffbeb","#92400e","⚠️ 注意：異常値影響",f"注入少量異常値後，平均數已被拉至 {mean_v:.1f}，而中位數僅微移至 {median_v:.1f}。")
+            _card("#f59e0b","#fffbeb","#92400e","⚠️ 注意：異常值影響",f"注入少量異常值後，平均數已被拉至 {mean_v:.1f}，而中位數僅微移至 {median_v:.1f}。")
         else:
-            _card("#ef4444","#fef2f2","#991b1b","🚨 異常値嚴重拉偏",f"平均數 {mean_v:.1f} 已遠離真實中心 50，而中位數 {median_v:.1f} 仍接近真實値。")
+            _card("#ef4444","#fef2f2","#991b1b","🚨 異常值嚴重拉偏",f"平均數 {mean_v:.1f} 已遠離真實中心 50，而中位數 {median_v:.1f} 仍接近真實值。")
 
-        st.markdown("""
+        st.markdown('''
         <div class="discover-box">
         💡 <b>設計思考</b>：在橋樑設計中，若用「含少數超大荷載的平均值」來代表「典型荷載」，
         可能導致設計值被高估，增加不必要的工程成本。反之亦然——若異常大值代表的是真實的極端情境，
         就不能用中位數忽略它。統計工具沒有對錯，<b>關鍵在於你的工程問題是什麼</b>。
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
     st.markdown("---")
-    _card("#d97706","#fffbeb","#92400e","💡 2.2 隨堂小測驗","請根據平均數與中位數的概念作答：")
+    _card("#d97706","#fef3c7","#92400e","💡 2.2 隨堂小測驗","請根據平均數與中位數的概念作答：")
     q_tab2 = st.radio(
         "📍 **某工程師團隊 5 人的月薪為 5萬、5萬、6萬、6萬，及計畫主持人的 50 萬。用哪個量數「客觀描述一般工程師薪資」？**",
         ["請選擇...", "A. 平均數 (14.4 萬)", "B. 中位數 (6 萬)"],
@@ -675,7 +697,7 @@ with tab2:
     )
     if st.button("送出答案", key="btn_t2"):
         if q_tab2 == "B. 中位數 (6 萬)":
-            _card("#22c55e","#f0fdf4","#166534","🎉 正確！","計畫主持人的 50 萬是極端値，將平均數從 6 萬拉升至 14.4 萬，嚴重失真。中位數 6 萬才能客觀反映基層工程師的典型薪資。")
+            _card("#22c55e","#f0fdf4","#166534","🎉 正確！","計畫主持人的 50 萬是極端值，將平均數從 6 萬拉升至 14.4 萬，嚴重失真。中位數 6 萬才能客觀反映基層工程師的典型薪資。")
         elif q_tab2 != "請選擇...":
             _card("#ef4444","#fef2f2","#991b1b","❌ 提示","算算看：(5+5+6+6+50)/5 = 14.4 萬。誰把這個數字拉這麼高？")
 
@@ -686,33 +708,37 @@ with tab2:
 with tab3:
     st.subheader("📦 2.3 差異性的量度 (Measures of Variability)")
 
-    st.markdown("""
+    st.markdown('''
     <div class="why-box">
     <b>🔧 為什麼「差異性」比「平均值」更重要？</b><br>
     兩家工廠都宣稱平均強度 = 50 MPa，但 A 廠每根都是 50 MPa，B 廠有些是 30 有些是 70。
     你會選哪家的材料？——<b>平均數相同，但風險天差地別！</b><br>
     變異度是工程品質的核心指標：變異越大 = 產品越不穩定 = 工程風險越高。
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
     st.markdown('''
     <div style="display:flex;gap:16px;margin:12px 0;background:#f5f3ff;padding:14px;border-radius:14px;">
-        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
+        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
             <div style="background:#7c3aed;padding:9px 16px;">
                 <span style="color:white;font-weight:700;font-size:0.95rem;">📐 樣本變異數 s²</span>
             </div>
-            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;font-size:1.05rem;line-height:1.9;text-align:center;">
+            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;
+                        font-size:1.05rem;line-height:1.9;text-align:center;">
                 s² = &#931;(X&#7522; − X&#772;)² / (n−1)<br>
                 <small style="color:#7c3aed;font-size:0.88rem;">
                     除以 n−1（不是 n）是為了讓 s² 成為<br>母體變異數 &#963;² 的「不偏估計量」
                 </small>
             </div>
         </div>
-        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
+        <div style="flex:1;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #ddd6fe;">
             <div style="background:#7c3aed;padding:9px 16px;">
                 <span style="color:white;font-weight:700;font-size:0.95rem;">📐 偏態係數 SK</span>
             </div>
-            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;font-size:1.05rem;line-height:1.9;text-align:center;">
+            <div style="flex:1;background:#f5f3ff;padding:18px 16px;color:#4c1d95;
+                        font-size:1.05rem;line-height:1.9;text-align:center;">
                 SK = 3(X&#772; − m) / s<br>
                 <small style="color:#7c3aed;font-size:0.88rem;">
                     SK &gt; 0 → 正偏態（右偏，平均數 &gt; 中位數）<br>
@@ -724,7 +750,7 @@ with tab3:
     </div>
     ''', unsafe_allow_html=True)
 
-    # ─── 從 Tab2 搬移過來：百分位數與箱形圖（現為 2.3 節第一個實驗室）───
+    # ─── 實驗室 A：百分位數與箱形圖 ─────────────────────────────────
     with st.expander("🛠️ 展開實驗室 A：百分位數與箱形圖解讀（工程規格神器）", expanded=False):
         st.markdown('''
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #0369a1;
@@ -778,14 +804,15 @@ with tab3:
                          annotation_text=f"P{k_pct} = {pk_val:.1f}",
                          annotation_position="top left", annotation_font_size=F_ANNOTATION)
         set_chart_layout(fig_bx, f"箱形圖 ＋ 1.5×IQR 離群值邊界（P{k_pct} 標示）", "測量值")
-        fig_bx.update_layout(height=320, margin=dict(t=50, b=40, l=50, r=20))
+        fig_bx.update_layout(height=420, margin=dict(t=50, b=40, l=50, r=20))
         st.plotly_chart(fig_bx, use_container_width=True)
 
         if len(outliers) > 0:
-            _card("#f59e0b","#fffbeb","#92400e",f"🔍 偵測到 {len(outliers)} 個離群値",
-                  f"發現 {len(outliers)} 個離群値：{np.round(outliers, 2).tolist()}")
+            _card("#f59e0b","#fffbeb","#92400e",
+                  f"🔍 偵測到 {len(outliers)} 個離群值",
+                  f"發現 {len(outliers)} 個離群值：{np.round(outliers, 2).tolist()}")
 
-        _card("#0369a1","#f0f9ff","#0c4a6e","📖 箱形圖五數綜覽",
+        _card("#0369a1","#e0f2fe","#0c4a6e","📖 箱形圖五數綜覽",
               f"最小值: {np.min(base_d_pct):.2f} &nbsp;│&nbsp; Q1: {q1_v:.2f} &nbsp;│&nbsp; "
               f"中位數: {np.median(base_d_pct):.2f} &nbsp;│&nbsp; Q3: {q3_v:.2f} &nbsp;│&nbsp; "
               f"最大值: {np.max(base_d_pct):.2f}<br>"
@@ -833,7 +860,7 @@ with tab3:
                          annotation_text="超過 30 分鐘（忍耐極限）",
                          annotation_font_size=F_ANNOTATION)
         set_chart_layout(fig_ab, "等候時間分佈比較（平均數皆為 15 分鐘）", "排隊方式", "等候時間 (分鐘)")
-        fig_ab.update_layout(height=360, margin=dict(t=55, b=40, l=50, r=20))
+        fig_ab.update_layout(height=420, margin=dict(t=55, b=40, l=50, r=20))
         st.plotly_chart(fig_ab, use_container_width=True)
 
         col_ab1, col_ab2 = st.columns(2)
@@ -842,13 +869,13 @@ with tab3:
         with col_ab2:
             st.markdown(f"**方法 B 統計摘要**\n- 標準差 = **{std_B:.1f} 分鐘**\n- 等超過 30 分鐘的機率 ≈ **{pct_B_over30:.1f}%**")
 
-        st.markdown(f"""
-        <div class="discover-box">
-        💡 <b>工程結論</b>：平均等候時間相同，但方法 B 的標準差更小（更穩定）。
-        顧客排方法 B「等超過 30 分鐘」的機率從 {pct_A_over30:.1f}% 降到 {pct_B_over30:.1f}%。
-        <b>這就是為什麼麥當勞、銀行都改用「單一排隊制」——降低變異才能提升服務品質！</b>
-        </div>
-        """, unsafe_allow_html=True)
+        # ✅ 修正：此 discover-box 含動態數值，改用字串串接避免 f-string 包 HTML 的亂碼風險
+        discover_msg = (
+            '💡 <b>工程結論</b>：平均等候時間相同，但方法 B 的標準差更小（更穩定）。'
+            f'顧客排方法 B「等超過 30 分鐘」的機率從 {pct_A_over30:.1f}% 降到 {pct_B_over30:.1f}%。'
+            '<b>這就是為什麼麥當勞、銀行都改用「單一排隊制」——降低變異才能提升服務品質！</b>'
+        )
+        st.markdown('<div class="discover-box">' + discover_msg + '</div>', unsafe_allow_html=True)
 
     with st.expander("🛠️ 展開實驗室 C：分組資料統計量計算器（逐步推導）", expanded=False):
         st.markdown('''
@@ -934,11 +961,14 @@ with tab3:
 
         np.random.seed(7)
         if "正偏態" in skew_type:
-            sk_data, sk_color = np.concatenate([np.random.normal(30, 5, 180), np.random.exponential(15, 60) + 30]), "#f97316"
+            sk_data = np.concatenate([np.random.normal(30, 5, 180), np.random.exponential(15, 60) + 30])
+            sk_color = "#f97316"
         elif "負偏態" in skew_type:
-            sk_data, sk_color = np.concatenate([np.random.normal(70, 5, 180), -np.random.exponential(15, 60) + 70]), "#a855f7"
+            sk_data = np.concatenate([np.random.normal(70, 5, 180), -np.random.exponential(15, 60) + 70])
+            sk_color = "#a855f7"
         else:
-            sk_data, sk_color = np.random.normal(50, 10, 240), "#3b82f6"
+            sk_data = np.random.normal(50, 10, 240)
+            sk_color = "#3b82f6"
 
         sk_mean, sk_median = np.mean(sk_data), np.median(sk_data)
         sk_std = np.std(sk_data, ddof=1)
@@ -954,16 +984,21 @@ with tab3:
                          annotation_text=f"m={sk_median:.1f}",
                          annotation_position=pos_med_sk, annotation_font_size=F_ANNOTATION)
         set_chart_layout(fig_sk, f"偏態係數 SK = {sk_val:.3f}", "數值", "次數")
+        fig_sk.update_layout(height=420, margin=dict(t=50, b=40, l=50, r=20))
         st.plotly_chart(fig_sk, use_container_width=True)
 
         if sk_val > 0.1:
-            _card("#3b82f6","#eff6ff","#1e40af",f"📊 正偏態（右偏）SK={sk_val:.2f}",
-                  f"平均數({sk_mean:.1f})被右側大値拉高，超過中位數({sk_median:.1f})。直方圖右尾較長。")
+            _card("#3b82f6","#eff6ff","#1e40af",
+                  f"📊 正偏態（右偏）SK={sk_val:.2f}",
+                  f"平均數({sk_mean:.1f})被右側大值拉高，超過中位數({sk_median:.1f})。直方圖右尾較長。")
         elif sk_val < -0.1:
-            _card("#6366f1","#eef2ff","#3730a3",f"📊 負偏態（左偏）SK={sk_val:.2f}",
-                  f"平均數({sk_mean:.1f})被左側小値拉低，低於中位數({sk_median:.1f})。直方圖左尾較長。")
+            # ✅ 修正：將禁用的靛藍 #6366f1 改為深藍 #0369a1（語義：中性資訊回饋）
+            _card("#0369a1","#e0f2fe","#0c4a6e",
+                  f"📊 負偏態（左偏）SK={sk_val:.2f}",
+                  f"平均數({sk_mean:.1f})被左側小值拉低，低於中位數({sk_median:.1f})。直方圖左尾較長。")
         else:
-            _card("#22c55e","#f0fdf4","#166534",f"📊 接近對稱 SK={sk_val:.2f}",
+            _card("#22c55e","#f0fdf4","#166534",
+                  f"📊 接近對稱 SK={sk_val:.2f}",
                   f"平均數({sk_mean:.1f})與中位數({sk_median:.1f})幾乎相同。")
 
 
@@ -981,14 +1016,14 @@ with tab4:
     _card("#7c3aed","#f5f3ff","#4c1d95","📐 比例公式",
           "P = 屬於某類別之觀測數目 / 樣本大小")
 
-    st.markdown("""
+    st.markdown('''
     <div class="why-box">
     <b>🔧 為什麼比例在工程中至關重要？</b><br>
     • <b>品質管制</b>：每批晶片的不良比例 P 決定是否出貨或退貨<br>
     • <b>製程警示</b>：若 P 持續超過規格值 π₀，需立即停機校正<br>
     • <b>可靠度評估</b>：造紙機「失常比例 0.311 + 無法操作比例 0.111 = 0.422」→ 近一半時間機器出問題，維修成本高昂！
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
     with st.expander("📖 課本例題 2.4 重現：造紙機維修決策分析", expanded=False):
         st.markdown('''
@@ -1020,16 +1055,16 @@ with tab4:
         set_chart_layout(fig_paper, "造紙機設備狀態分佈")
         fig_paper.update_layout(
             annotations=[dict(text='135<br>次抽樣', x=0.5, y=0.5, font_size=F_TITLE, showarrow=False)],
-            height=340, margin=dict(t=40, b=20, l=20, r=20)
+            height=420, margin=dict(t=40, b=20, l=20, r=20)
         )
         st.plotly_chart(fig_paper, use_container_width=True)
 
-        st.markdown("""
+        st.markdown('''
         <div class="discover-box">
         💡 <b>工程師的決策</b>：失常 + 無法操作 = 42.2%，接近「一半時間機器都有問題」！
         這個比例數字直接指向：現有維修政策需要根本性改變（例如：增加預防性保養頻率）。
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
     with st.expander("🛠️ 展開實驗室：製程偏移與不良比例模擬器（品管決策練習）", expanded=False):
         st.markdown('''
@@ -1082,11 +1117,11 @@ with tab4:
         set_chart_layout(fig_proc,
                          f"晶片溫度分佈 ── 不良比例 P = {p_defect:.4f} ({p_defect*100:.2f}%)",
                          "操作溫度 (°C)", "次數")
-        fig_proc.update_layout(height=360, margin=dict(t=60, b=40, l=50, r=20))
+        fig_proc.update_layout(height=420, margin=dict(t=60, b=40, l=50, r=20))
         st.plotly_chart(fig_proc, use_container_width=True)
 
         if p_defect > spec_limit:
-            _card("#ef4444","#fef2f2","#991b1b",f"🚨 超標警告！必須立即停機校正",
+            _card("#ef4444","#fef2f2","#991b1b","🚨 超標警告！必須立即停機校正",
                   f"不良比例 P = {p_defect:.4f} > 規格上限 0.02")
         elif p_defect > spec_limit * 0.5:
             _card("#f59e0b","#fffbeb","#92400e","⚠️ 接近上限，請加強監控",
@@ -1096,7 +1131,7 @@ with tab4:
                   f"不良比例 P = {p_defect:.4f}，遠低於規格上限 0.02。")
 
     st.markdown("---")
-    _card("#d97706","#fffbeb","#92400e","💡 2.4 隨堂小測驗","請根據比例的概念作答：")
+    _card("#d97706","#fef3c7","#92400e","💡 2.4 隨堂小測驗","請根據比例的概念作答：")
     q_tab4 = st.radio(
         "📍 **在 37 個生產的矽晶片中發現 3 個毀壞。樣本毀壞比例 P 約為何？**",
         ["請選擇...", "A. 0.08（3/37 ≈ 0.081）", "B. 0.12（3/25 = 0.12）"],
@@ -1113,11 +1148,12 @@ with tab4:
 # 整合性總測驗
 # =====================================================================
 st.divider()
-st.markdown(
-    '<div style="background:linear-gradient(90deg,#2563eb 0%,#3b82f6 100%);'
-    'border-radius:10px;padding:12px 24px;margin:8px 0 6px 0;">'
-    '<span style="color:#fff;font-size:1.3rem;font-weight:800;">📝 2. 本週整合性總測驗</span></div>',
-    unsafe_allow_html=True)
+st.markdown('''
+<div style="background:linear-gradient(90deg,#2563eb 0%,#3b82f6 100%);
+    border-radius:10px;padding:12px 24px;margin:8px 0 6px 0;">
+    <span style="color:#ffffff;font-size:1.3rem;font-weight:800;">📝 2. 本週整合性總測驗</span>
+</div>
+''', unsafe_allow_html=True)
 st.markdown('<p style="color:#94a3b8;font-size:0.88rem;margin:0 0 16px 4px;">完成所有理論閱讀後，輸入老師公布的解鎖密碼開始作答</p>', unsafe_allow_html=True)
 
 real_password = get_weekly_password("Week 02")
@@ -1133,15 +1169,12 @@ with _col_btn:
     st.button("🔓 解鎖", use_container_width=True, key="w2_unlock_btn")
 
 if user_code != real_password:
-    if user_code != "": _card("#ef4444","#fef2f2","#991b1b","❌ 密碼錯誤","請確認您輸入的字母與數字是否正確！")
+    if user_code != "":
+        _card("#ef4444","#fef2f2","#991b1b","❌ 密碼錯誤","請確認您輸入的字母與數字是否正確！")
 else:
     _card("#22c55e","#f0fdf4","#166534","🔓 密碼正確！測驗已解鎖","請完成以下題目後送出。")
-    st.markdown("""
-    <div class="concept-box">
-    <b>📋 測驗說明</b>：以下 4 題涵蓋本週四個核心節次，每題 25 分，共 100 分。
-    作答送出後成績即時鎖定，請確認後再送出。
-    </div>
-    """, unsafe_allow_html=True)
+    _card("#3b82f6","#eff6ff","#1e40af","📋 測驗說明",
+          "以下 4 題涵蓋本週四個核心節次，每題 25 分，共 100 分。作答送出後成績即時鎖定，請確認後再送出。")
 
     if "w2_locked" not in st.session_state: st.session_state.w2_locked = False
 
@@ -1193,14 +1226,21 @@ else:
 
                         if save_score(s_idx, st_id, st_name, "Week 02", ans_str, score):
                             st.session_state.w2_locked = True
-                            st.markdown(
-    f'<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">'
-    f'<div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;">🎊 上傳成功！</span></div>'
-    f'<div style="background:#f0fdf4;padding:14px 18px;color:#166534;font-size:1.0rem;line-height:1.65;">'
-    f'<b>{st_name}</b>（{st_id}）驗證通過<br>'
-    f'<span style="font-size:2rem;font-weight:900;color:#15803d;">{score}</span>'
-    f' 分　成績已鎖定寫入資料庫！</div></div>',
-    unsafe_allow_html=True)
+                            # ✅ 修正：上傳成功卡含動態變數，改用字串串接避免 f-string 亂碼風險
+                            success_html = (
+                                '<div style="border-radius:12px;overflow:hidden;'
+                                'box-shadow:0 2px 10px rgba(0,0,0,0.07);'
+                                'border:1px solid #e2e8f0;margin:8px 0;">'
+                                '<div style="background:#22c55e;padding:9px 18px;">'
+                                '<span style="color:white;font-weight:700;">🎊 上傳成功！</span></div>'
+                                '<div style="background:#f0fdf4;padding:14px 18px;'
+                                'color:#166534;font-size:1.0rem;line-height:1.65;">'
+                                '<b>' + st_name + '</b>（' + st_id + '）驗證通過<br>'
+                                '<span style="font-size:2rem;font-weight:900;color:#15803d;">'
+                                + str(score) +
+                                '</span> 分　成績已鎖定寫入資料庫！</div></div>'
+                            )
+                            st.markdown(success_html, unsafe_allow_html=True)
                             if score == 100:
                                 st.balloons()
                                 _card("#7c3aed","#f5f3ff","#4c1d95","🏆 滿分 100！","四個核心概念全數掌握，Week 02 完美制霸！")
@@ -1221,16 +1261,17 @@ else:
 st.divider()
 with st.expander("📚 本週核心公式速查卡（考前複習用）", expanded=False):
     _qcards = [
-        ("#3b82f6","#eff6ff","#1e40af","2.1 次數分配",[
+        # ✅ 修正：2.1 改用深藍 #0369a1（資訊性）；2.2 將禁用靛藍 #6366f1 改為深藍 #0369a1
+        ("#0369a1","#e0f2fe","#0c4a6e","2.1 次數分配",[
             "建議組數 ≈ √n",
-            "組距 = (最大値 − 最小値) / 組數",
+            "組距 = (最大值 − 最小值) / 組數",
             "Ogive：各組上限 vs 累積次數（或累積 %）"
         ]),
-        ("#6366f1","#eef2ff","#3730a3","2.2 位置的測度",[
+        ("#0369a1","#e0f2fe","#0c4a6e","2.2 位置的測度",[
             "平均數：X̅ = Σxᵢ / n",
-            "中位數 m：排序後正中間的値",
+            "中位數 m：排序後正中間的值",
             "分組平均：X̅ = Σ(fₖ × mₖ) / n",
-            "百分位數 Pₖ：有 k% 資料小於等於此値"
+            "百分位數 Pₖ：有 k% 資料小於等於此值"
         ]),
         ("#22c55e","#f0fdf4","#166534","2.3 差異性的量度",[
             "樣本變異數：s² = Σ(xᵢ − X̅)² / (n−1)",
@@ -1249,9 +1290,30 @@ with st.expander("📚 本週核心公式速查卡（考前複習用）", expand
     _qcols = st.columns(2)
     for _qi, (_qhc, _qbc, _qtc, _qtitle, _qitems) in enumerate(_qcards):
         with _qcols[_qi % 2]:
-            _qihtml = "".join(f'<li style="margin:4px 0;color:{_qtc};font-size:0.92rem;">{it}</li>' for it in _qitems)
+            _qihtml = "".join(
+                f'<li style="margin:4px 0;color:{_qtc};font-size:0.92rem;">{it}</li>'
+                for it in _qitems
+            )
             st.markdown(
-                f'<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin-bottom:14px;">'
-                f'<div style="background:{_qhc};padding:9px 16px;"><span style="color:white;font-weight:800;font-size:0.92rem;">{_qtitle}</span></div>'
-                f'<div style="background:{_qbc};padding:11px 16px;"><ul style="margin:0;padding-left:16px;">{_qihtml}</ul></div></div>',
-                unsafe_allow_html=True)
+                f'<div style="border-radius:12px;overflow:hidden;'
+                f'box-shadow:0 2px 10px rgba(0,0,0,0.07);'
+                f'border:1px solid #e2e8f0;margin-bottom:14px;">'
+                f'<div style="background:{_qhc};padding:9px 16px;">'
+                f'<span style="color:white;font-weight:800;font-size:0.92rem;">{_qtitle}</span></div>'
+                f'<div style="background:{_qbc};padding:11px 16px;">'
+                f'<ul style="margin:0;padding-left:16px;">{_qihtml}</ul></div></div>',
+                unsafe_allow_html=True
+            )
+
+# =====================================================================
+# 頁面底部版權聲明 badge
+# =====================================================================
+st.markdown('''
+<div style="margin:20px 0 8px 0;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;">
+    <span style="display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;
+        border-radius:20px;padding:5px 18px;color:#64748b;font-size:0.78rem;line-height:1.6;">
+        📚 教學輔助用途 · 課本例題引用自《工程統計》Lawrence L. Lapin 著；潘南飛、溫志中 編譯
+        · Cengage Learning Asia · ISBN 978-957-9282-94-9
+    </span>
+</div>
+''', unsafe_allow_html=True)

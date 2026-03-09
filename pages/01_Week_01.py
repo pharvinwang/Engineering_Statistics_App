@@ -60,8 +60,15 @@ st.markdown('''
                 margin:0 0 8px 0;line-height:1.25;">
         Week 01｜統計在工程決策中的角色 🎯
     </div>
-    <div style="color:#94a3b8;font-size:1.05rem;margin:0;">
+    <div style="color:#94a3b8;font-size:1.05rem;margin:0 0 10px 0;">
         The Role of Statistics in Engineering Decision-Making · Chapter 1
+    </div>
+    <div style="display:inline-flex;align-items:center;gap:8px;
+        background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);
+        border-radius:20px;padding:5px 16px;">
+        <span style="color:#93c5fd;font-size:0.82rem;">📖</span>
+        <span style="color:#e2e8f0;font-size:0.82rem;font-weight:600;">課本第 1 章 · §1.1–1.6</span>
+        <span style="color:#64748b;font-size:0.78rem;">｜《工程統計》Lapin 著</span>
     </div>
 </div>
 ''', unsafe_allow_html=True)
@@ -129,26 +136,26 @@ with tab1:
                             ["請選擇您的答案...", "A. 名目資料 (Nominal)", "B. 順序資料 (Ordinal)", "C. 區間資料 (Interval)", "D. 比率資料 (Ratio)"])
     if st.button("送出鑑定", key="btn_tab1"):
         if data_example == "請選擇您的答案...":
-                    st.markdown(f"""
+            st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⚠️ 請先選擇答案</span></div>
             <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">嘿！您還沒選擇答案喔，請先勾選一個再送出。</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
         elif data_example == "D. 比率資料 (Ratio)":
-                    st.markdown(f"""
+            st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🎉 恭喜答對！</span></div>
             <div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;line-height:1.6;">重量有絕對的零點（0噸=無重量），20噸是10噸的兩倍，可乘除運算 → 比率資料 (Ratio)！</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
         else:
-                    st.markdown(f"""
+            st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">❌ 答錯了</span></div>
             <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">提示：載重有沒有「真正的零點」？能不能說 20 噸是 10 噸的兩倍？</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
 # ------------------------------------------
 # Tab 2: 1.3 母體與樣本 (演繹與歸納)
@@ -202,26 +209,26 @@ with tab2:
                               ["請選擇您的答案...", "A. 演繹統計 (Deductive)", "B. 歸納/推論統計 (Inductive)"])
     if st.button("送出解答", key="btn_tab2"):
         if reasoning_type == "請選擇您的答案...":
-                    st.markdown(f"""
+            st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⚠️ 請先選擇答案</span></div>
             <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">請先勾選一個答案再送出喔！</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
         elif reasoning_type == "B. 歸納/推論統計 (Inductive)":
-                    st.markdown(f"""
+            st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🎉 恭喜答對！</span></div>
             <div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;line-height:1.6;">從「已知的樣本結果」反向推估「未知的母體特徵」，這正是歸納/推論統計的核心精神！</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
         else:
-                    st.markdown(f"""
+            st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">❌ 答錯了</span></div>
             <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">提示：我們是從「樣本推回母體」還是「母體推向樣本」？仔細看題目方向！</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
 # ------------------------------------------
 # Tab 3: 1.4 需要樣本的理由
@@ -253,18 +260,19 @@ with tab3:
     sample_to_crush = st.number_input("決定抽樣壓碎的數量", 1, total_concrete, 10)
     if st.button("執行抗壓試驗", key="btn_tab3"):
         cost_saved = (total_concrete - sample_to_crush) * 500
-        st.markdown(f"""
-        <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:200px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">
-                <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;">💥 試驗完成</span></div>
-                <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;">破壞了 <b>{sample_to_crush}</b> 顆試體，取得抗壓強度數據</div>
-            </div>
-            <div style="flex:1;min-width:200px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">
-                <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;">✅ 抽樣節省</span></div>
-                <div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;">保全 <b>{total_concrete - sample_to_crush}</b> 顆，省下約 <b>{cost_saved:,} 元</b></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;">'
+            '<div style="flex:1;min-width:200px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">'
+            '<div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;">💥 試驗完成</span></div>'
+            '<div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;">破壞了 <b>' + str(sample_to_crush) + '</b> 顆試體，取得抗壓強度數據</div>'
+            '</div>'
+            '<div style="flex:1;min-width:200px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">'
+            '<div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;">✅ 抽樣節省</span></div>'
+            '<div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;">保全 <b>' + str(total_concrete - sample_to_crush) + '</b> 顆，省下約 <b>' + f'{cost_saved:,}' + ' 元</b></div>'
+            '</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
 # ------------------------------------------
 # Tab 4: 1.5 樣本的選取
@@ -300,12 +308,12 @@ with tab4:
     if st.button("🔄 重新洗牌 (更換隱藏的 A 國得主名單)"):
         st.session_state.secret_a_country = random.sample(range(1, 101), 10)
         st.session_state.secret_a_country.sort()
-        st.markdown(f"""
+        st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#0369a1;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🔀 洗牌完成</span></div>
             <div style="background:#e0f2fe;padding:13px 18px;color:#0c4a6e;font-size:1.0rem;line-height:1.6;">A 國得主已經換人囉！名單依然是個秘密，準備開始新的抽樣挑戰！</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
     sample_method = st.radio("請選擇您想測試的抽樣方法：", ["A. 電腦擬隨機抽樣", "B. 查閱隨機數字表 (附錄表 F)", "C. 人腦直覺隨機挑選 (手動輸入)"])
     
@@ -316,22 +324,23 @@ with tab4:
         hit_bg = "#f0fdf4" if len(caught) > 0 else "#eff6ff"
         hit_tc = "#166534" if len(caught) > 0 else "#1e40af"
         hit_msg = f"🎯 發現 {len(caught)} 位 A 國得主！中獎編號：{caught}" if len(caught) > 0 else "🎯 這次沒有抽中任何 A 國得主"
-        st.markdown(f"""
-        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:220px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">
-                <div style="background:#3b82f6;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">✅ 您的抽樣名單</span></div>
-                <div style="background:#eff6ff;padding:13px 18px;font-size:1.0rem;color:#1e40af;font-weight:600;">{sampled_list}</div>
-            </div>
-            <div style="flex:1;min-width:220px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">
-                <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🔓 系統揭曉：A 國得主</span></div>
-                <div style="background:#fffbeb;padding:13px 18px;font-size:1.0rem;color:#92400e;font-weight:600;">{secret_list}</div>
-            </div>
-            <div style="flex:1;min-width:220px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">
-                <div style="background:{hit_color};padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🏆 對獎結果</span></div>
-                <div style="background:{hit_bg};padding:13px 18px;font-size:1.0rem;color:{hit_tc};font-weight:600;">{hit_msg}</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">'
+            '<div style="flex:1;min-width:220px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">'
+            '<div style="background:#3b82f6;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">✅ 您的抽樣名單</span></div>'
+            '<div style="background:#eff6ff;padding:13px 18px;font-size:1.0rem;color:#1e40af;font-weight:600;">' + str(sampled_list) + '</div>'
+            '</div>'
+            '<div style="flex:1;min-width:220px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">'
+            '<div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🔓 系統揭曉：A 國得主</span></div>'
+            '<div style="background:#fffbeb;padding:13px 18px;font-size:1.0rem;color:#92400e;font-weight:600;">' + str(secret_list) + '</div>'
+            '</div>'
+            '<div style="flex:1;min-width:220px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;">'
+            '<div style="background:' + hit_color + ';padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🏆 對獎結果</span></div>'
+            '<div style="background:' + hit_bg + ';padding:13px 18px;font-size:1.0rem;color:' + hit_tc + ';font-weight:600;">' + hit_msg + '</div>'
+            '</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
     if sample_method == "A. 電腦擬隨機抽樣":
         st.write("由電腦程式內部重複地進行隨機選取，產生 10 個不重複的擬隨機數。")
@@ -345,12 +354,12 @@ with tab4:
         table_input = st.text_input("輸入 10 組數字 (請以「逗號」分隔)：", value="", placeholder="例如: 12651, 61646, 81169, 74436...")
         if st.button("📖 解析亂數表並對獎", key="btn_tab4_b"):
             if not table_input.strip():
-                st.markdown(f"""
+                st.markdown('''
                 <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                     <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⚠️ 尚未輸入</span></div>
                     <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">請先查閱附錄表 F 並輸入數字再進行對獎！</div>
                 </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
             else:
                 parts = table_input.split(",")
                 sampled = []
@@ -364,24 +373,24 @@ with tab4:
                     sampled.sort()
                     reveal_and_check(sampled)
                 else:
-                    st.markdown(f"""
+                    st.markdown('''
                     <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                         <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">❌ 格式錯誤</span></div>
                         <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">無法解析數字，請確保輸入格式正確（例如：12651, 61646）</div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    ''', unsafe_allow_html=True)
                 
     elif sample_method == "C. 人腦直覺隨機挑選 (手動輸入)":
         st.write("請憑直覺，隨機輸入 10 個 1~100 的數字。看看人類大腦是否真的能做到「公平且無預期的隨機」？")
         human_input = st.text_input("輸入 10 個數字 (請以「逗號」分隔)：", value="", placeholder="例如: 7, 14, 25, 33, 42...")
         if st.button("🧠 提交人腦名單並對獎", key="btn_tab4_c"):
             if not human_input.strip():
-                st.markdown(f"""
+                st.markdown('''
                 <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                     <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⚠️ 尚未輸入</span></div>
                     <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">請先憑直覺輸入 10 個數字再進行對獎！</div>
                 </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
             else:
                 parts = human_input.split(",")
                 sampled = []
@@ -396,12 +405,12 @@ with tab4:
                     sampled.sort()
                     reveal_and_check(sampled)
                 else:
-                    st.markdown(f"""
+                    st.markdown('''
                     <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                         <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">❌ 格式錯誤</span></div>
                         <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">無法解析數字，請確保輸入為 1~100 之間的整數並以逗號分隔</div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    ''', unsafe_allow_html=True)
 
 # ------------------------------------------
 # Tab 5: 1.6 統計之工程應用
@@ -431,18 +440,18 @@ with tab5:
     e_input = st.slider("請調整預期應變量 (E)", min_value=0.0001, max_value=0.0010, value=0.0005, step=0.0001, format="%.4f")
     if st.button("計算預測應力", key="btn_tab5"):
         s_predict = -5000 + (10**7 * e_input)
-        st.markdown(f"""
-        <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e2e8f0;margin-top:12px;">
-            <div style="background:#3b82f6;padding:10px 20px;">
-                <span style="color:white;font-size:1.0rem;font-weight:700;">📐 預測之應力承受值 S（載重/單位面積）</span>
-            </div>
-            <div style="background:#eff6ff;padding:16px 20px;">
-                <span style="font-size:2.4rem;font-weight:900;color:#1e40af;">{s_predict:,.0f}</span>
-                <span style="font-size:1.1rem;color:#475569;margin-left:8px;">磅 (lb)</span><br>
-                <span style="font-size:0.9rem;color:#94a3b8;">依據迴歸線性模型預測 · E = {e_input:.4f}</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e2e8f0;margin-top:12px;">'
+            '<div style="background:#3b82f6;padding:10px 20px;">'
+            '<span style="color:white;font-size:1.0rem;font-weight:700;">📐 預測之應力承受值 S（載重/單位面積）</span>'
+            '</div>'
+            '<div style="background:#eff6ff;padding:16px 20px;">'
+            '<span style="font-size:2.4rem;font-weight:900;color:#1e40af;">' + f'{s_predict:,.0f}' + '</span>'
+            '<span style="font-size:1.1rem;color:#475569;margin-left:8px;">磅 (lb)</span><br>'
+            '<span style="font-size:0.9rem;color:#94a3b8;">依據迴歸線性模型預測 · E = ' + f'{e_input:.4f}' + '</span>'
+            '</div></div>',
+            unsafe_allow_html=True
+        )
 
 st.divider()
 
@@ -461,27 +470,27 @@ st.markdown('<p style="color:#64748b;font-size:1.0rem;margin:0 0 16px 4px;">點�
 with st.expander("☎️ 案例 A：電話聲音傳輸 (普查的迷思與抽樣的奇蹟) - 點擊展開", expanded=False):
     st.markdown("**案例背景 (例題 1.1)**")
     st.write("舊有電話主要缺點為聲波太慢且每一次談話需佔一個線路。若將原有連續傳遞（如同普查）改以每 100 微秒為一間隔的電磁波進行傳遞區間（如同抽樣）。")
-    st.markdown(f"""
+    st.markdown('''
     <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
         <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">✅ 工程結論</span></div>
         <div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;line-height:1.6;">以部分間斷傳輸電磁波的方式，較連續性傳遞可省下可觀的時間與成本，將電磁波速及容量增快至 100 倍！</div>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 with st.expander("👨‍👩‍👧‍👦 案例 B：美國 1950 年人口普查 (普查一定比抽樣準確嗎？) - 點擊展開", expanded=False):
     st.markdown("**案例背景 (例題 1.2)**")
     st.write("美國 1950 年人口普查報告指出，30歲以下的鰥夫（喪妻）人數比1940年增加了 10倍 (100%)。這是一個極度不合理的數值。")
-    st.markdown(f"""
+    st.markdown('''
     <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
         <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⚠️ 工程結論</span></div>
         <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">普查資料雖龐大，但電腦化處理時讀卡位置誤打造成巨大錯誤。謹慎的抽樣往往比草率的普查更正確！</div>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 st.divider()
 
 # ==========================================
-# 模組三：整合性總測驗 (密碼控管與防呆寫入)
+# 模組三：整合性總測驗
 # ==========================================
 st.markdown('''
 <div style="background:linear-gradient(90deg,#2563eb 0%,#3b82f6 100%);
@@ -493,23 +502,19 @@ st.markdown('''
 ''', unsafe_allow_html=True)
 st.markdown('<p style="color:#64748b;font-size:1.0rem;margin:0 0 16px 4px;">完成所有理論閱讀後，輸入老師公布的解鎖密碼開始作答</p>', unsafe_allow_html=True)
 
-# 📡 即時向 Google 試算表請求本週的密碼
 real_password = get_weekly_password("Week 01")
-
-# 防呆機制：萬一試算表連線失敗，給予預設緊急密碼
 if not real_password:
-    real_password = "ADMIN" 
+    real_password = "ADMIN"
 
-st.markdown("""
+st.markdown('''
 <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
     <div style="background:#475569;padding:9px 18px;"><span style="color:white;font-weight:700;">🔒 測驗鎖定中</span></div>
     <div style="background:#f8fafc;padding:13px 18px;color:#334155;font-size:1.0rem;">
         請輸入老師於課堂上公布的 6 位數解鎖密碼，即可開始作答。
     </div>
 </div>
-""", unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
-# 密碼輸入框 + 送出按鈕
 _col_pw, _col_btn = st.columns([5, 1])
 with _col_pw:
     user_code = st.text_input("密碼", type="password", key="w1_unlock_code",
@@ -517,31 +522,28 @@ with _col_pw:
 with _col_btn:
     st.button("🔓 解鎖", use_container_width=True, key="w1_unlock_btn")
 
-# 邏輯判斷：比對密碼（Enter 或按鈕皆可）
 if user_code != real_password:
-    if user_code != "": # 如果有輸入但不對，給予提示
-        st.markdown(f"""
+    if user_code != "":
+        st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">❌ 密碼錯誤</span></div>
             <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">請確認您輸入的字母與數字是否正確！</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 else:
-    # 密碼正確，解鎖測驗表單 (完全保留您的原始題目與邏輯)
-    st.markdown(f"""
-        <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
-            <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🔓 密碼正確！</span></div>
-            <div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;line-height:1.6;">測驗已解鎖，請完成以下題目後送出。</div>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown(f"""
-        <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
-            <div style="background:#3b82f6;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">📋 測驗說明</span></div>
-            <div style="background:#eff6ff;padding:13px 18px;color:#1e40af;font-size:1.0rem;line-height:1.6;">4 題，每題 25 分，共 100 分。作答送出後即鎖定成績，請確實核對學號與驗證碼！</div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown('''
+    <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
+        <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🔓 密碼正確！</span></div>
+        <div style="background:#f0fdf4;padding:13px 18px;color:#166534;font-size:1.0rem;line-height:1.6;">測驗已解鎖，請完成以下題目後送出。</div>
+    </div>
+    ''', unsafe_allow_html=True)
+    st.markdown('''
+    <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
+        <div style="background:#3b82f6;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">📋 測驗說明</span></div>
+        <div style="background:#eff6ff;padding:13px 18px;color:#1e40af;font-size:1.0rem;line-height:1.6;">4 題，每題 25 分，共 100 分。作答送出後即鎖定成績，請確實核對學號與驗證碼！</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
-    # 【前端防呆】利用 session_state 記錄是否已經送出，用來將按鈕反灰
     if "w1_locked" not in st.session_state:
         st.session_state.w1_locked = False
 
@@ -567,32 +569,27 @@ else:
         
         st.markdown("---")
         
-        # 按鈕狀態會跟隨 st.session_state.w1_locked 變化
         if st.form_submit_button("✅ 簽署並送出本週測驗", disabled=st.session_state.w1_locked):
             if st_id and st_name and st_vcode:
                 with st.spinner("系統安全驗證與自動評分中..."):
-                    
-                    # 第一關：【防止亂猜】接收驗證結果，並順便把該生的「編號」抓出來
                     is_valid_user, student_idx = verify_student(st_id, st_name, st_vcode)
                     
                     if not is_valid_user:
-                        st.markdown(f"""
+                        st.markdown('''
                         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                             <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⛔ 身分驗證失敗</span></div>
                             <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">您輸入的學號、姓名或驗證碼有誤，請重新確認！（為保護成績安全，不予顯示作答結果）</div>
                         </div>
-                        """, unsafe_allow_html=True)
+                        ''', unsafe_allow_html=True)
                     else:
-                        # 第二關：【防止重複】檢查是否已經有成績
                         if check_has_submitted(st_id, "Week 01"):
-                            st.markdown(f"""
+                            st.markdown('''
                             <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                                 <div style="background:#ef4444;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⛔ 拒絕送出</span></div>
                                 <div style="background:#fef2f2;padding:13px 18px;color:#991b1b;font-size:1.0rem;line-height:1.6;">系統查詢到您已繳交過 Week 01 的測驗！請勿重複作答。</div>
                             </div>
-                            """, unsafe_allow_html=True)
+                            ''', unsafe_allow_html=True)
                         else:
-                            # 通過所有安全查核，開始計算成績
                             score = 0
                             if q1 == "比率資料 (Ratio)": score += 25
                             if q2 == "具有破壞性特質的觀測 (Destructive Nature)": score += 25
@@ -600,60 +597,61 @@ else:
                             if q4 == "演繹統計 (Deductive Statistics)": score += 25
                             
                             ans_str = f"Q1:{q1[:2]}, Q2:{q2[:4]}, Q3:{q3[:4]}, Q4:{q4[:2]}"
-                            
-                            # 把學生的編號 (student_idx) 一起傳給寫入系統
                             success = save_score(student_idx, st_id, st_name, "Week 01", ans_str, score)
                             
                             if success:
                                 st.session_state.w1_locked = True
-                                st.markdown(f"""
-                                <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
-                                    <div style="background:#22c55e;padding:9px 18px;"><span style="color:white;font-weight:700;">🎊 上傳成功！</span></div>
-                                    <div style="background:#f0fdf4;padding:13px 18px;color:#166534;">
-                                        <b>{st_name}</b>（{st_id}）驗證通過<br>
-                                        <span style="font-size:2.0rem;font-weight:900;color:#15803d;">{score}</span>
-                                        <span style="font-size:1.0rem;"> 分　成績已鎖定寫入資料庫！</span>
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
+                                success_html = (
+                                    '<div style="border-radius:12px;overflow:hidden;'
+                                    'box-shadow:0 2px 10px rgba(0,0,0,0.07);'
+                                    'border:1px solid #e2e8f0;margin:8px 0;">'
+                                    '<div style="background:#22c55e;padding:9px 18px;">'
+                                    '<span style="color:white;font-weight:700;">🎊 上傳成功！</span></div>'
+                                    '<div style="background:#f0fdf4;padding:13px 18px;'
+                                    'color:#166634;font-size:1.0rem;line-height:1.65;">'
+                                    '<b>' + st_name + '</b>（' + st_id + '）驗證通過<br>'
+                                    '<span style="font-size:2rem;font-weight:900;color:#15803d;">'
+                                    + str(score) +
+                                    '</span> 分　成績已鎖定寫入資料庫！</div></div>'
+                                )
+                                st.markdown(success_html, unsafe_allow_html=True)
                                 if score == 100:
                                     st.balloons()
-                                    st.markdown(f"""
-                                <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
-                                    <div style="background:#7c3aed;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🏆 滿分 100！</span></div>
-                                    <div style="background:#f5f3ff;padding:13px 18px;color:#4c1d95;font-size:1.0rem;line-height:1.6;">統計學第一章你已完全掌握，繼續保持這個狀態！</div>
-                                </div>
-                                    """, unsafe_allow_html=True)
+                                    st.markdown('''
+                                    <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
+                                        <div style="background:#7c3aed;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🏆 滿分 100！</span></div>
+                                        <div style="background:#f5f3ff;padding:13px 18px;color:#4c1d95;font-size:1.0rem;line-height:1.6;">統計學第一章你已完全掌握，繼續保持這個狀態！</div>
+                                    </div>
+                                    ''', unsafe_allow_html=True)
                                 elif score >= 75:
-                                    st.markdown(f"""
+                                    st.markdown('''
                                     <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                                         <div style="background:#3b82f6;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">👍 表現不錯！</span></div>
                                         <div style="background:#eff6ff;padding:13px 18px;color:#1e40af;font-size:1.0rem;line-height:1.6;">建議回頭看看答錯的題目，對應 Tab 的互動實驗有詳細解析，再複習一次更紮實！</div>
                                     </div>
-                                    """, unsafe_allow_html=True)
+                                    ''', unsafe_allow_html=True)
                                 else:
-                                    st.markdown(f"""
+                                    st.markdown('''
                                     <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                                         <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">📖 繼續加油！</span></div>
                                         <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">請回顧本週各節的概念說明與互動實驗，特別是不確定的題目——理解比死背更重要！</div>
                                     </div>
-                                    """, unsafe_allow_html=True)
+                                    ''', unsafe_allow_html=True)
             else:
-                st.markdown(f"""
+                st.markdown('''
                 <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
                     <div style="background:#f59e0b;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">⚠️ 資料不完整</span></div>
                     <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">請完整填寫學號、姓名與驗證碼再送出表單。</div>
                 </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
 
-    # 如果已經被鎖定，在表單下方顯示溫馨提示
     if st.session_state.w1_locked:
-        st.markdown(f"""
+        st.markdown('''
         <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">
             <div style="background:#475569;padding:9px 18px;"><span style="color:white;font-weight:700;font-size:0.95rem;">🔒 測驗已鎖定</span></div>
             <div style="background:#f8fafc;padding:13px 18px;color:#334155;font-size:1.0rem;line-height:1.6;">系統已安全登錄您的成績，如有疑問請聯繫授課教師。</div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
 # =====================================================================
 # 頁面底部：本週學習摘要速查卡
@@ -690,14 +688,25 @@ with st.expander("📚 本週核心概念速查卡（考前複習用）", expand
     for _i, (_hc, _bc, _tc, _title, _items) in enumerate(_cards):
         with _cols[_i % 3]:
             _items_html = "".join(f'<li style="margin:4px 0;color:{_tc};font-size:0.92rem;">{it}</li>' for it in _items)
-            st.markdown(f"""
-            <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);
-                        border:1px solid #e2e8f0;margin-bottom:14px;">
-                <div style="background:{_hc};padding:9px 16px;">
-                    <span style="color:white;font-weight:800;font-size:0.92rem;">{_title}</span>
-                </div>
-                <div style="background:{_bc};padding:11px 16px;">
-                    <ul style="margin:0;padding-left:16px;">{_items_html}</ul>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);'
+                f'border:1px solid #e2e8f0;margin-bottom:14px;">'
+                f'<div style="background:{_hc};padding:9px 16px;">'
+                f'<span style="color:white;font-weight:800;font-size:0.92rem;">{_title}</span></div>'
+                f'<div style="background:{_bc};padding:11px 16px;">'
+                f'<ul style="margin:0;padding-left:16px;">{_items_html}</ul></div></div>',
+                unsafe_allow_html=True
+            )
+
+# =====================================================================
+# 頁面底部版權聲明 badge
+# =====================================================================
+st.markdown('''
+<div style="margin:20px 0 8px 0;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;">
+    <span style="display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;
+        border-radius:20px;padding:5px 18px;color:#64748b;font-size:0.78rem;line-height:1.6;">
+        📚 教學輔助用途 · 課本例題引用自《工程統計》Lawrence L. Lapin 著；潘南飛、溫志中 編譯
+        · Cengage Learning Asia · ISBN 978-957-9282-94-9
+    </span>
+</div>
+''', unsafe_allow_html=True)
