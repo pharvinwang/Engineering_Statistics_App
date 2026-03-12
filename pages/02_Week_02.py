@@ -1283,7 +1283,16 @@ with tab3:
         </div>
         ''', unsafe_allow_html=True)
 
-        from scipy import stats as scipy_stats
+        # 用 numpy 實作常態分佈 PDF / CDF，不依賴 scipy
+        def _norm_pdf(x, mu, sigma):
+            return np.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi))
+
+        def _norm_cdf(x, mu, sigma):
+            z = (x - mu) / (sigma * np.sqrt(2))
+            t = 1.0 / (1.0 + 0.3275911 * np.abs(z))
+            erf_approx = 1 - (0.254829592*t - 0.284496736*t**2 + 1.421413741*t**3
+                              - 1.453152027*t**4 + 1.061405429*t**5) * np.exp(-z**2)
+            return np.where(z >= 0, 0.5 * (1 + erf_approx), 0.5 * (1 - erf_approx))
 
         tol_range = st.slider("📏 品管容差（克）：規格 = 100 ± 此值", 1, 10, 5, 1, key="w2_tol")
 
@@ -1298,19 +1307,19 @@ with tab3:
         check_slider("w2_sd2", "t3_std")
 
         spec_lo, spec_hi = 100 - tol_range, 100 + tol_range
-        defect_a = (1 - (scipy_stats.norm.cdf(spec_hi, 100, sd1) - scipy_stats.norm.cdf(spec_lo, 100, sd1))) * 100
-        defect_b = (1 - (scipy_stats.norm.cdf(spec_hi, 100, sd2) - scipy_stats.norm.cdf(spec_lo, 100, sd2))) * 100
+        defect_a = (1 - (_norm_cdf(spec_hi, 100, sd1) - _norm_cdf(spec_lo, 100, sd1))) * 100
+        defect_b = (1 - (_norm_cdf(spec_hi, 100, sd2) - _norm_cdf(spec_lo, 100, sd2))) * 100
 
         x_range = np.linspace(70, 130, 500)
         fig_sd = go.Figure()
         fig_sd.add_trace(go.Scatter(
-            x=x_range, y=scipy_stats.norm.pdf(x_range, 100, sd1),
+            x=x_range, y=_norm_pdf(x_range, 100, sd1),
             mode="lines", line=dict(color="#0f766e", width=3),
             name="生產線 A (s=" + str(sd1) + "g)",
             hovertemplate="重量：%{x:.1f}g<extra>生產線A</extra>"
         ))
         fig_sd.add_trace(go.Scatter(
-            x=x_range, y=scipy_stats.norm.pdf(x_range, 100, sd2),
+            x=x_range, y=_norm_pdf(x_range, 100, sd2),
             mode="lines", line=dict(color="#ef4444", width=3),
             name="生產線 B (s=" + str(sd2) + "g)",
             hovertemplate="重量：%{x:.1f}g<extra>生產線B</extra>"
