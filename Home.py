@@ -237,6 +237,16 @@ if check_password():
     </div>
     """, unsafe_allow_html=True)
 
+    # ── 翻譯提示 ────────────────────────────────────────────────────
+    st.markdown('''
+    <div style="margin:0 0 10px 0;text-align:center;">
+        <span style="display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;
+            border-radius:20px;padding:4px 16px;color:#3b82f6;font-size:0.75rem;line-height:1.6;">
+            🌐 <b>For English:</b> Right-click anywhere on the page → "Translate to English" (Chrome / Edge built-in translation)
+        </span>
+    </div>
+    ''', unsafe_allow_html=True)
+
     # ── 資訊三欄 ────────────────────────────────────────────────────
     col_a, col_b, col_c = st.columns([5, 5, 4])
 
