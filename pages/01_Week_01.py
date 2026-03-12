@@ -140,6 +140,16 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
+# 翻譯提示
+st.markdown('''
+<div style="margin:0 0 10px 0;text-align:center;">
+    <span style="display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;
+        border-radius:20px;padding:4px 16px;color:#3b82f6;font-size:0.75rem;line-height:1.6;">
+        🌐 <b>For English:</b> Right-click anywhere on the page → "Translate to English" (Chrome / Edge built-in translation)
+    </span>
+</div>
+''', unsafe_allow_html=True)
+
 st.markdown('''
 <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);
             border:1px solid #99f6e4;margin:0 0 18px 0;">
