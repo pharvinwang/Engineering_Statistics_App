@@ -977,8 +977,27 @@ with tab2:
                 🎯 本實驗室教學目的
             </div>
             <div style="color:#334155;font-size:1.0rem;line-height:1.7;">
-                <b>學習目標：</b>用課本方法逐步求出中位數（Q2）、Q1、Q3<br>
-                <b>你會發現：</b>百分位數的核心是「位置」計算，不是直接平均
+                <b>學習目標：</b>用課本（Lapin）方法，逐步求出 Q2（中位數）、Q1、Q3<br>
+                <b>核心公式：</b>百分位數位置 = <b>(n+1) × d</b>，其中 d 為分位點（如 0.25、0.75）<br>
+                <b>你會發現：</b>位置若為整數 → 直接取值；若為小數 → 需用內插法
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+        # 課本公式說明卡
+        st.markdown('''
+        <div style="background:#fefce8;border:1px solid #fde68a;border-radius:12px;
+                    padding:14px 18px;margin:0 0 14px 0;">
+            <div style="color:#92400e;font-weight:700;font-size:0.95rem;margin-bottom:8px;">
+                📐 課本內插法公式（Lapin §2.2）
+            </div>
+            <div style="color:#78350f;font-size:1.05rem;line-height:2.0;">
+                <b>Step 1：</b>計算位置 L = (n+1) × d<br>
+                <b>Step 2：</b>令 k = 不超過 L 的最大整數（floor）<br>
+                <b>Step 3：</b>Q<sub>d</sub> = X<sub>k</sub> + (L − k) × (X<sub>k+1</sub> − X<sub>k</sub>)<br>
+                <span style="font-size:0.9rem;color:#92400e;">
+                ✔ 若 L 恰為整數，則 (L−k)=0，公式自動退化為「直接取第 L 個值」，無需手動內插
+                </span>
             </div>
         </div>
         ''', unsafe_allow_html=True)
@@ -987,66 +1006,164 @@ with tab2:
         steel_data_raw = [19.2, 19.5, 19.7, 19.8, 19.9, 20.0, 20.0,
                           20.1, 20.1, 20.2, 20.3, 20.4, 20.5, 20.7, 20.9]
         steel_data = sorted(steel_data_raw)
-        n_st = len(steel_data)
+        n_st = len(steel_data)  # 15
 
-        st.markdown("**情境：15 根鋼棒直徑（mm），已由小到大排序**")
-        st.dataframe(
-            pd.DataFrame({"排序位置": list(range(1, n_st+1)),
-                          "直徑（mm）": steel_data}).T,
-            hide_index=False, use_container_width=True
+        st.markdown("**情境：某工廠品管抽查 15 根鋼棒直徑（mm），已由小到大排序**")
+        df_steel = pd.DataFrame({
+            "排序位置 k": list(range(1, n_st + 1)),
+            "直徑 Xₖ（mm）": steel_data
+        }).T
+        st.dataframe(df_steel, hide_index=False, use_container_width=True)
+
+        st.markdown('''
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;
+                    padding:10px 16px;margin:0 0 14px 0;color:#0c4a6e;font-size:0.95rem;">
+            👆 先記住這個表格的位置編號（k = 1～15），每一步都會用到它來對照取值。
+        </div>
+        ''', unsafe_allow_html=True)
+
+        # ── 步驟一：Q2 中位數 ──────────────────────────────────────────
+        _card("#0369a1", "#e0f2fe", "#0c4a6e", "✏️ 步驟一：求 Q2（中位數，d = 0.50）",
+              "套公式：位置 L = (n+1) × d = (15+1) × 0.50 = 16 × 0.50 = <b>8.0</b><br>"
+              "L = 8.0 是整數，直接取第 8 個排序值，無需內插。<br>"
+              "請從上方表格找到 <b>k = 8</b> 的直徑值，填入下方：")
+
+        true_median_st = steel_data[7]   # index 7 = 第8個
+        median_input = st.number_input(
+            "Q2（中位數） = 第 8 個值 = ?（mm）",
+            value=0.0, step=0.1, format="%.1f", key="w2_b_median"
         )
-
-        _card("#0369a1", "#e0f2fe", "#0c4a6e", "✏️ 步驟一：求中位數（Q2）的位置",
-              "n=15（奇數），中位數在第 (n+1)/2 = (15+1)/2 = <b>第 8 個</b>位置。<br>"
-              "請填入第 8 個數值（即中位數）：")
-
-        median_input = st.number_input("中位數 Q2 = 排序後第 8 個值 = ?",
-                                       value=0.0, step=0.1, format="%.1f", key="w2_b_median")
-        true_median_st = steel_data[7]
         step_b1_done = False
         if median_input != 0.0:
             if abs(median_input - true_median_st) < 0.01:
                 step_b1_done = True
                 _card("#22c55e", "#f0fdf4", "#166534",
                       "✅ 正確！Q2 = " + str(true_median_st) + " mm",
-                      "排序後第 8 個值 = " + str(true_median_st) + " mm，這就是中位數。請繼續步驟二。")
+                      "L = 8（整數）→ 直接取 X₈ = <b>" + str(true_median_st) +
+                      " mm</b>。這是中位數，代表有 50% 的鋼棒直徑小於此值。<br>"
+                      "✅ 繼續步驟二，求 Q1。")
             else:
-                _card("#ef4444", "#fef2f2", "#991b1b", "❌ 再確認一次",
-                      "請從上方表格找到第 8 個值（你填了 " + str(median_input) + "）")
+                _card("#ef4444", "#fef2f2", "#991b1b", "❌ 再試一次",
+                      "從表格找 k=8 那一欄的值。你填了 " + str(median_input) + " mm。")
 
+        # ── 步驟二：Q1 ────────────────────────────────────────────────
         if step_b1_done:
             st.markdown("---")
-            _card("#0369a1", "#e0f2fe", "#0c4a6e", "✏️ 步驟二：求 Q1（第 25 百分位數）",
-                  "Q1 位置 = (25/100) × n = 0.25 × 15 = 3.75，"
-                  "取第 4 個值（無條件進位）。請填入 Q1：")
+            _card("#0369a1", "#e0f2fe", "#0c4a6e", "✏️ 步驟二：求 Q1（第 25 百分位數，d = 0.25）",
+                  "套公式：位置 L = (n+1) × d = (15+1) × 0.25 = 16 × 0.25 = <b>4.0</b><br>"
+                  "L = 4.0 恰好是整數，故直接取第 <b>4</b> 個排序值，無需內插。<br>"
+                  "請從上方表格找到 <b>k = 4</b> 的直徑值，填入下方：")
 
-            q1_input = st.number_input("Q1 = 排序後第 4 個值 = ?",
-                                       value=0.0, step=0.1, format="%.1f", key="w2_b_q1")
-            true_q1_st = steel_data[3]
+            true_q1_st = steel_data[3]   # index 3 = 第4個
+            q1_input = st.number_input(
+                "Q1 = 第 4 個值 = ?（mm）",
+                value=0.0, step=0.1, format="%.1f", key="w2_b_q1"
+            )
             step_b2_done = False
             if q1_input != 0.0:
                 if abs(q1_input - true_q1_st) < 0.01:
                     step_b2_done = True
                     _card("#22c55e", "#f0fdf4", "#166534",
                           "✅ 正確！Q1 = " + str(true_q1_st) + " mm",
-                          "25% 的鋼棒直徑小於 " + str(true_q1_st) + " mm，75% 大於此值。")
+                          "L = 4（整數）→ 直接取 X₄ = <b>" + str(true_q1_st) +
+                          " mm</b>。代表 25% 的鋼棒直徑小於此值。<br>"
+                          "✅ 繼續步驟三，求 Q3。")
                 else:
                     _card("#ef4444", "#fef2f2", "#991b1b", "❌ 提示",
-                          "位置 = 無條件進位(3.75) = 第 4 個值。你填了 " + str(q1_input))
+                          "位置 L = (16)(0.25) = 4.0（整數），直接取第 4 個值。"
+                          "你填了 " + str(q1_input) + " mm。")
 
+            # ── 步驟三：Q3 ────────────────────────────────────────────
             if step_b2_done:
                 st.markdown("---")
-                _card("#7c3aed", "#f5f3ff", "#4c1d95", "🎉 三個位置測度已解鎖！",
-                      "Q1=" + str(steel_data[3]) + " mm，Q2（中位數）=" + str(true_median_st) +
-                      " mm，Q3=" + str(steel_data[11]) + " mm<br>"
-                      "四分位距 IQR = Q3 - Q1 = " +
-                      str(round(steel_data[11] - steel_data[3], 1)) + " mm")
-                mark_done("t2_calc")
+                _card("#0369a1", "#e0f2fe", "#0c4a6e", "✏️ 步驟三：求 Q3（第 75 百分位數，d = 0.75）",
+                      "套公式：位置 L = (n+1) × d = (15+1) × 0.75 = 16 × 0.75 = <b>12.0</b><br>"
+                      "L = 12.0 恰好是整數，故直接取第 <b>12</b> 個排序值，無需內插。<br>"
+                      "請從上方表格找到 <b>k = 12</b> 的直徑值，填入下方：")
+
+                true_q3_st = steel_data[11]  # index 11 = 第12個
+                q3_input = st.number_input(
+                    "Q3 = 第 12 個值 = ?（mm）",
+                    value=0.0, step=0.1, format="%.1f", key="w2_b_q3"
+                )
+                step_b3_done = False
+                if q3_input != 0.0:
+                    if abs(q3_input - true_q3_st) < 0.01:
+                        step_b3_done = True
+                        _card("#22c55e", "#f0fdf4", "#166534",
+                              "✅ 正確！Q3 = " + str(true_q3_st) + " mm",
+                              "L = 12（整數）→ 直接取 X₁₂ = <b>" + str(true_q3_st) +
+                              " mm</b>。代表 75% 的鋼棒直徑小於此值。<br>"
+                              "✅ 繼續步驟四，計算 IQR 與內插練習！")
+                    else:
+                        _card("#ef4444", "#fef2f2", "#991b1b", "❌ 提示",
+                              "位置 L = (16)(0.75) = 12.0（整數），直接取第 12 個值。"
+                              "你填了 " + str(q3_input) + " mm。")
+
+                # ── 步驟四：IQR + 內插加強練習 ────────────────────────
+                if step_b3_done:
+                    st.markdown("---")
+                    iqr_val = round(true_q3_st - true_q1_st, 1)
+                    _card("#7c3aed", "#f5f3ff", "#4c1d95", "🎉 三個四分位數已全部求出！",
+                          "Q1 = " + str(true_q1_st) + " mm（第 4 個值）<br>"
+                          "Q2 = " + str(true_median_st) + " mm（第 8 個值，中位數）<br>"
+                          "Q3 = " + str(true_q3_st) + " mm（第 12 個值）<br>"
+                          "<b>IQR = Q3 − Q1 = " + str(true_q3_st) + " − " +
+                          str(true_q1_st) + " = " + str(iqr_val) + " mm</b><br>"
+                          "IQR 代表中間 50% 鋼棒直徑的分散範圍，不受極端值影響。")
+
+                    # 內插加強說明：假設 n=10 的情境
+                    st.markdown("---")
+                    st.markdown('''
+                    <div style="border-radius:12px;overflow:hidden;border:1px solid #fde68a;
+                                box-shadow:0 2px 8px rgba(0,0,0,0.07);margin:10px 0;">
+                        <div style="background:#b45309;padding:9px 16px;">
+                            <span style="color:white;font-weight:700;font-size:0.97rem;">
+                                🔢 進階：當位置 L 不是整數時——內插法練習
+                            </span>
+                        </div>
+                        <div style="background:#fffbeb;padding:14px 18px;
+                                    color:#78350f;font-size:1.0rem;line-height:1.9;">
+                            以課本 §2.2 的布料重量資料（n=10）為例：<br>
+                            <b>資料（由小到大）：</b>5.3, 5.4, 5.7, 6.0, 6.1, 6.1, 6.2, 6.4, 6.5, 6.6<br><br>
+                            求 <b>Q1（d=0.25）</b>：<br>
+                            　位置 L = (n+1) × d = (10+1) × 0.25 = <b>2.75</b>（非整數！）<br>
+                            　k = 2（floor of 2.75），L−k = 0.75<br>
+                            　Q₀.₂₅ = X₂ + (L−k) × (X₃ − X₂)<br>
+                            　&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 5.4 + 0.75 × (5.7 − 5.4)<br>
+                            　&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 5.4 + 0.75 × 0.3 = 5.4 + 0.225 = <b>5.625</b><br><br>
+                            <span style="color:#92400e;font-size:0.92rem;">
+                            💡 本實驗室 n=15 的例子 L 恰好都是整數，所以不需要內插。
+                            但考試碰到 n=10 這類資料時，請記得用內插公式！
+                            </span>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+
+                    # 內插驗算小題
+                    st.markdown("**🧪 驗算一下（對照課本）：上面 n=10 的例子，Q3（d=0.75）是多少？**")
+                    # 正確值：L=(11)(0.75)=8.25, k=8, Q3=6.4+0.25*(6.5-6.4)=6.425
+                    q3_interp_input = st.number_input(
+                        "Q3（n=10 布料資料）= ? （請計算後填入，保留 3 位小數）",
+                        value=0.0, step=0.001, format="%.3f", key="w2_b_q3_interp"
+                    )
+                    true_q3_interp = 6.425
+                    if q3_interp_input != 0.0:
+                        if abs(q3_interp_input - true_q3_interp) < 0.002:
+                            _card("#22c55e", "#f0fdf4", "#166534", "✅ 完美！內插計算正確",
+                                  "L = 11 × 0.75 = 8.25；k=8，L−k=0.25<br>"
+                                  "Q3 = X₈ + 0.25×(X₉−X₈) = 6.4 + 0.25×(6.5−6.4) = 6.4 + 0.025 = <b>6.425</b><br>"
+                                  "🎓 你已完整掌握課本四分位數計算方法！")
+                            mark_done("t2_calc")
+                        else:
+                            _card("#ef4444", "#fef2f2", "#991b1b", "❌ 再算一次",
+                                  "步驟：L=(10+1)×0.75=8.25；k=8；Q3=X₈+0.25×(X₉−X₈)<br>"
+                                  "X₈=6.4，X₉=6.5，代入看看。你填了 " + str(q3_interp_input))
 
         col_rb, _ = st.columns([1, 4])
         with col_rb:
             if st.button("🔄 重新開始實驗室 B", key="w2_reset_b"):
-                for k in ["w2_b_median", "w2_b_q1"]:
+                for k in ["w2_b_median", "w2_b_q1", "w2_b_q3", "w2_b_q3_interp"]:
                     if k in st.session_state:
                         del st.session_state[k]
                 st.rerun()
