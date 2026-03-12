@@ -143,23 +143,31 @@ def apply_theme():
         color: #334155 !important;
     }
 
-    /* ── 側邊欄寬度縮窄 ── */
+    /* ── 側邊欄寬度 ── */
     section[data-testid="stSidebar"] {
-        width: 200px !important;
-        min-width: 200px !important;
+        width: 240px !important;
+        min-width: 240px !important;
     }
     section[data-testid="stSidebar"] > div {
-        width: 200px !important;
+        width: 240px !important;
     }
 
-    /* ── 側邊欄導覽列 ── */
-    [data-testid="stSidebarNav"] span,
-    section[data-testid="stSidebar"] span,
-    section[data-testid="stSidebar"] a {
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        color: #0f172a !important;
-        line-height: 1.8 !important;
+    /* ── 側邊欄自動頁面導覽列：縮小字體、減少 padding ── */
+    [data-testid="stSidebarNav"] li a span,
+    [data-testid="stSidebarNav"] li a p,
+    [data-testid="stSidebarNav"] a span,
+    [data-testid="stSidebarNav"] a p,
+    nav[data-testid="stSidebarNav"] li span {
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        line-height: 1.4 !important;
+    }
+    [data-testid="stSidebarNav"] li {
+        padding: 1px 0 !important;
+    }
+    [data-testid="stSidebarNav"] a {
+        padding: 4px 8px !important;
     }
 
     /* ── 自訂卡片與徽章 ── */
