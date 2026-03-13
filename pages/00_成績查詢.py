@@ -44,84 +44,79 @@ if "password_correct" not in st.session_state or not st.session_state.password_c
         unsafe_allow_html=True)
     st.stop()
 
-# ── CSS 注入（v4.0：雙格式 selector + data-baseweb 層）────────────────
-# 同時覆蓋：st-key-{key}（1.39+）和 stkey_{key}（舊版）
-# 並加上 [data-baseweb="input"] 中間層，確保打到正確的 input 元素
 _CSS = """
 <style>
-/* ═══════════════════════════════════════════════════════════════════
-   輸入欄位樣式 v4.0
-   策略：同時使用三種 selector 確保 100% 命中率
-   ─ .st-key-xxx         (Streamlit 1.39+ 官方)
-   ─ .stkey_xxx          (部分版本備用)
-   ─ [data-baseweb="input"] 中間層
-═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   成績查詢輸入欄位 v5.0
+   修正：明確覆蓋 BaseWeb 四方向 border，確保在 Streamlit Cloud 生效
+═══════════════════════════════════════════════════════════════ */
 
-/* ── 學號 ── */
+/* ── 共用：三個輸入欄 ────────────────────────────────────────── */
 .st-key-gq_id input, .stkey_gq_id input,
-.st-key-gq_id [data-baseweb="input"] input,
-.stkey_gq_id [data-baseweb="input"] input {
-    border: 2.5px solid #334155 !important;
-    border-radius: 10px !important;
-    background: #f8fafc !important;
-    color: #0f172a !important;
-    font-size: 1.0rem !important;
-    height: 50px !important;
-    padding: 0 14px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important;
-    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
-}
-
-/* ── 姓名 ── */
 .st-key-gq_name input, .stkey_gq_name input,
-.st-key-gq_name [data-baseweb="input"] input,
-.stkey_gq_name [data-baseweb="input"] input {
+.st-key-gq_code input, .stkey_gq_code input {
+    /* border shorthand */
     border: 2.5px solid #334155 !important;
+    /* 四方向明確覆蓋（打敗 BaseWeb transitions style）*/
+    border-top: 2.5px solid #334155 !important;
+    border-right: 2.5px solid #334155 !important;
+    border-bottom: 2.5px solid #334155 !important;
+    border-left: 2.5px solid #334155 !important;
+    border-top-color:    #334155 !important;
+    border-right-color:  #334155 !important;
+    border-bottom-color: #334155 !important;
+    border-left-color:   #334155 !important;
+    border-top-width:    2.5px !important;
+    border-right-width:  2.5px !important;
+    border-bottom-width: 2.5px !important;
+    border-left-width:   2.5px !important;
     border-radius: 10px !important;
-    background: #f8fafc !important;
+    /* background 兩種寫法都覆蓋 */
+    background:       #f8fafc !important;
+    background-color: #f8fafc !important;
     color: #0f172a !important;
     font-size: 1.0rem !important;
     height: 50px !important;
     padding: 0 14px !important;
+    /* 先清除 BaseWeb 原有陰影，再設自己的 */
     box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important;
-    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
+    transition: border-color 0.15s, border-top-color 0.15s,
+                border-bottom-color 0.15s, border-left-color 0.15s,
+                border-right-color 0.15s,
+                box-shadow 0.15s, background 0.15s !important;
 }
 
-/* ── 驗證碼 ── */
-.st-key-gq_code input, .stkey_gq_code input,
-.st-key-gq_code [data-baseweb="input"] input,
-.stkey_gq_code [data-baseweb="input"] input {
-    border: 2.5px solid #334155 !important;
-    border-radius: 10px !important;
-    background: #f8fafc !important;
-    color: #0f172a !important;
-    font-size: 1.0rem !important;
-    height: 50px !important;
-    padding: 0 14px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important;
-    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
-}
-
-/* ── hover（三欄共用）── */
+/* ── hover ────────────────────────────────────────────────────── */
 .st-key-gq_id input:hover, .stkey_gq_id input:hover,
 .st-key-gq_name input:hover, .stkey_gq_name input:hover,
 .st-key-gq_code input:hover, .stkey_gq_code input:hover {
-    border-color: #1e3a5f !important;
-    background: #ffffff !important;
+    border-color:        #1e3a5f !important;
+    border-top-color:    #1e3a5f !important;
+    border-right-color:  #1e3a5f !important;
+    border-bottom-color: #1e3a5f !important;
+    border-left-color:   #1e3a5f !important;
+    background:       #ffffff !important;
+    background-color: #ffffff !important;
     box-shadow: 0 3px 12px rgba(30,58,95,0.16) !important;
 }
 
-/* ── focus ── */
+/* ── focus ────────────────────────────────────────────────────── */
 .st-key-gq_id input:focus, .stkey_gq_id input:focus,
 .st-key-gq_name input:focus, .stkey_gq_name input:focus,
 .st-key-gq_code input:focus, .stkey_gq_code input:focus {
-    border-color: #1d4ed8 !important;
-    background: #fafcff !important;
-    box-shadow: 0 0 0 4px rgba(29,78,216,0.18), 0 2px 6px rgba(0,0,0,0.08) !important;
+    border-color:        #1d4ed8 !important;
+    border-top-color:    #1d4ed8 !important;
+    border-right-color:  #1d4ed8 !important;
+    border-bottom-color: #1d4ed8 !important;
+    border-left-color:   #1d4ed8 !important;
+    background:       #fafcff !important;
+    background-color: #fafcff !important;
+    box-shadow: 0 0 0 4px rgba(29,78,216,0.18),
+                0 2px 6px rgba(0,0,0,0.08) !important;
     outline: none !important;
 }
 
-/* ── label 文字 ── */
+/* ── label 文字 ──────────────────────────────────────────────── */
 .st-key-gq_id label p, .stkey_gq_id label p,
 .st-key-gq_name label p, .stkey_gq_name label p,
 .st-key-gq_code label p, .stkey_gq_code label p {
@@ -131,16 +126,17 @@ _CSS = """
     letter-spacing: 0.04em !important;
 }
 
-/* ── 密碼眼睛 icon ── */
+/* ── 密碼眼睛 ──────────────────────────────────────────────── */
 .st-key-gq_code button, .stkey_gq_code button {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
 }
 
-/* ── 查詢按鈕 ── */
+/* ── 查詢按鈕 ──────────────────────────────────────────────── */
 .st-key-gq_btn button, .stkey_gq_btn button {
     background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%) !important;
+    background-color: #1d4ed8 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
@@ -159,7 +155,6 @@ _CSS = """
 </style>
 """
 
-# st.html() 比 st.markdown(unsafe_allow_html) 更穩定（Streamlit 1.10+）
 try:
     st.html(_CSS)
 except AttributeError:
@@ -176,7 +171,7 @@ st.markdown(
     '輸入學號、姓名與驗證碼，查詢所有週次的互動參與與小考成績</div></div>',
     unsafe_allow_html=True)
 
-# ── 表單卡片 header（無 overflow:hidden）────────────────────────────
+# ── 表單卡片 ─────────────────────────────────────────────────────────
 st.markdown(
     '<div style="border-radius:14px 14px 0 0;' +
     'border:2px solid #0d9488;border-bottom:none;' +
@@ -192,7 +187,6 @@ st.markdown(
     '查詢結果只有您自己能看到。</div></div>',
     unsafe_allow_html=True)
 
-# ── 輸入欄位（左右邊框接卡片）────────────────────────────────────────
 st.markdown(
     '<div style="border-left:2px solid #0d9488;' +
     'border-right:2px solid #0d9488;' +
@@ -211,7 +205,6 @@ with col_code:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ── 送出按鈕（卡片底部）──────────────────────────────────────────────
 st.markdown(
     '<div style="border-left:2px solid #0d9488;' +
     'border-right:2px solid #0d9488;' +
@@ -241,7 +234,6 @@ if st.button("🔍 查詢我的成績", key="gq_btn", use_container_width=True,
     else:
         with st.spinner("🔄 驗證身分中，請稍候…"):
             is_valid, student_idx = verify_student(q_id, q_name, q_code)
-
         if not is_valid:
             st.markdown(
                 '<div style="border-radius:10px;border:1px solid #fecaca;margin:8px 0;">' +
@@ -266,8 +258,7 @@ if st.button("🔍 查詢我的成績", key="gq_btn", use_container_width=True,
                 'padding:10px 16px;color:#166534;font-size:0.95rem;">' +
                 "已找到 <b>" + q_name + "</b>（" + q_id +
                 "）的成績記錄，共 <b>" + str(len(records)) + "</b> 筆。" +
-                '</div></div>',
-                unsafe_allow_html=True)
+                '</div></div>', unsafe_allow_html=True)
 
             if not records:
                 st.markdown(
@@ -331,45 +322,33 @@ if st.button("🔍 查詢我的成績", key="gq_btn", use_container_width=True,
                         bc  = "#22c55e" if pct >= 80 else "#f59e0b" if pct >= 50 else "#ef4444"
                         cnt = f'{dn}/{tn}' if tn else "—"
                         ia  = (
-                            f'<div style="display:flex;flex-direction:column;' +
-                            f'align-items:center;gap:5px;">' +
-                            f'<div style="display:flex;align-items:center;' +
-                            f'gap:10px;width:100%;">' +
-                            f'<div style="flex:1;background:#dde6f0;' +
-                            f'border-radius:999px;height:11px;">' +
-                            f'<div style="width:{pct}%;background:{bc};' +
-                            f'height:100%;border-radius:999px;"></div></div>' +
-                            f'<span style="font-weight:800;color:{bc};' +
-                            f'min-width:42px;text-align:right;">{pct}%</span></div>' +
-                            f'<span style="font-size:0.82rem;color:#64748b;">' +
-                            f'已完成 {cnt} 項互動</span></div>'
+                            f'<div style="display:flex;flex-direction:column;align-items:center;gap:5px;">' +
+                            f'<div style="display:flex;align-items:center;gap:10px;width:100%;">' +
+                            f'<div style="flex:1;background:#dde6f0;border-radius:999px;height:11px;">' +
+                            f'<div style="width:{pct}%;background:{bc};height:100%;border-radius:999px;"></div></div>' +
+                            f'<span style="font-weight:800;color:{bc};min-width:42px;text-align:right;">{pct}%</span></div>' +
+                            f'<span style="font-size:0.82rem;color:#64748b;">已完成 {cnt} 項互動</span></div>'
                         )
                     else:
-                        ia = '<span style="color:#b0bec5;font-size:0.88rem;">' + '尚未送出</span>'
+                        ia = '<span style="color:#b0bec5;font-size:0.88rem;">尚未送出</span>'
                     if week in quiz_map:
-                        r   = quiz_map[week]
-                        sc  = r["score"]
+                        r      = quiz_map[week]
+                        sc     = r["score"]
                         sc_col = "#22c55e" if sc >= 75 else "#f59e0b" if sc >= 50 else "#ef4444"
-                        lbl = "🌟" if sc == 100 else "👍" if sc >= 75 else "📖"
-                        qz  = (
-                            f'<span style="font-size:1.5rem;font-weight:900;' +
-                            f'color:{sc_col};">{sc}</span>' +
-                            f'<span style="color:#94a3b8;font-size:0.85rem;">' +
-                            f' / 100 {lbl}</span>'
+                        lbl    = "🌟" if sc == 100 else "👍" if sc >= 75 else "📖"
+                        qz     = (
+                            f'<span style="font-size:1.5rem;font-weight:900;color:{sc_col};">{sc}</span>' +
+                            f'<span style="color:#94a3b8;font-size:0.85rem;"> / 100 {lbl}</span>'
                         )
                     else:
                         qz = '<span style="color:#b0bec5;font-size:0.88rem;">尚未作答</span>'
                     rows += (
                         f'<tr style="background:{bg};">' +
-                        f'<td style="padding:13px 18px;font-weight:700;' +
-                        f'color:#1e3a5f;border-bottom:1px solid #d4e0ec;">{week}</td>' +
-                        f'<td style="padding:13px 18px;' +
-                        f'border-bottom:1px solid #d4e0ec;text-align:center;">{ia}</td>' +
-                        f'<td style="padding:13px 18px;' +
-                        f'border-bottom:1px solid #d4e0ec;text-align:center;">{qz}</td>' +
+                        f'<td style="padding:13px 18px;font-weight:700;color:#1e3a5f;border-bottom:1px solid #d4e0ec;">{week}</td>' +
+                        f'<td style="padding:13px 18px;border-bottom:1px solid #d4e0ec;text-align:center;">{ia}</td>' +
+                        f'<td style="padding:13px 18px;border-bottom:1px solid #d4e0ec;text-align:center;">{qz}</td>' +
                         f'</tr>'
                     )
-                st.markdown(table + rows + '</tbody></table>',
-                            unsafe_allow_html=True)
+                st.markdown(table + rows + '</tbody></table>', unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
