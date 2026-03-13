@@ -46,97 +46,9 @@ if "password_correct" not in st.session_state or not st.session_state.password_c
 
 _CSS = """
 <style>
-/* ═══════════════════════════════════════════════════════════════
-   成績查詢輸入欄位 v5.0
-   修正：明確覆蓋 BaseWeb 四方向 border，確保在 Streamlit Cloud 生效
-═══════════════════════════════════════════════════════════════ */
-
-/* ── 共用：三個輸入欄 ────────────────────────────────────────── */
-.st-key-gq_id input, .stkey_gq_id input,
-.st-key-gq_name input, .stkey_gq_name input,
-.st-key-gq_code input, .stkey_gq_code input {
-    /* border shorthand */
-    border: 2.5px solid #334155 !important;
-    /* 四方向明確覆蓋（打敗 BaseWeb transitions style）*/
-    border-top: 2.5px solid #334155 !important;
-    border-right: 2.5px solid #334155 !important;
-    border-bottom: 2.5px solid #334155 !important;
-    border-left: 2.5px solid #334155 !important;
-    border-top-color:    #334155 !important;
-    border-right-color:  #334155 !important;
-    border-bottom-color: #334155 !important;
-    border-left-color:   #334155 !important;
-    border-top-width:    2.5px !important;
-    border-right-width:  2.5px !important;
-    border-bottom-width: 2.5px !important;
-    border-left-width:   2.5px !important;
-    border-radius: 10px !important;
-    /* background 兩種寫法都覆蓋 */
-    background:       #f8fafc !important;
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
-    font-size: 1.0rem !important;
-    height: 50px !important;
-    padding: 0 14px !important;
-    /* 先清除 BaseWeb 原有陰影，再設自己的 */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important;
-    transition: border-color 0.15s, border-top-color 0.15s,
-                border-bottom-color 0.15s, border-left-color 0.15s,
-                border-right-color 0.15s,
-                box-shadow 0.15s, background 0.15s !important;
-}
-
-/* ── hover ────────────────────────────────────────────────────── */
-.st-key-gq_id input:hover, .stkey_gq_id input:hover,
-.st-key-gq_name input:hover, .stkey_gq_name input:hover,
-.st-key-gq_code input:hover, .stkey_gq_code input:hover {
-    border-color:        #1e3a5f !important;
-    border-top-color:    #1e3a5f !important;
-    border-right-color:  #1e3a5f !important;
-    border-bottom-color: #1e3a5f !important;
-    border-left-color:   #1e3a5f !important;
-    background:       #ffffff !important;
-    background-color: #ffffff !important;
-    box-shadow: 0 3px 12px rgba(30,58,95,0.16) !important;
-}
-
-/* ── focus ────────────────────────────────────────────────────── */
-.st-key-gq_id input:focus, .stkey_gq_id input:focus,
-.st-key-gq_name input:focus, .stkey_gq_name input:focus,
-.st-key-gq_code input:focus, .stkey_gq_code input:focus {
-    border-color:        #1d4ed8 !important;
-    border-top-color:    #1d4ed8 !important;
-    border-right-color:  #1d4ed8 !important;
-    border-bottom-color: #1d4ed8 !important;
-    border-left-color:   #1d4ed8 !important;
-    background:       #fafcff !important;
-    background-color: #fafcff !important;
-    box-shadow: 0 0 0 4px rgba(29,78,216,0.18),
-                0 2px 6px rgba(0,0,0,0.08) !important;
-    outline: none !important;
-}
-
-/* ── label 文字 ──────────────────────────────────────────────── */
-.st-key-gq_id label p, .stkey_gq_id label p,
-.st-key-gq_name label p, .stkey_gq_name label p,
-.st-key-gq_code label p, .stkey_gq_code label p {
-    font-weight: 700 !important;
-    color: #1e3a5f !important;
-    font-size: 0.95rem !important;
-    letter-spacing: 0.04em !important;
-}
-
-/* ── 密碼眼睛 ──────────────────────────────────────────────── */
-.st-key-gq_code button, .stkey_gq_code button {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-/* ── 查詢按鈕 ──────────────────────────────────────────────── */
+/* 查詢按鈕 */
 .st-key-gq_btn button, .stkey_gq_btn button {
     background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%) !important;
-    background-color: #1d4ed8 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
@@ -145,7 +57,6 @@ _CSS = """
     border: none !important;
     box-shadow: 0 3px 12px rgba(29,78,216,0.30) !important;
     letter-spacing: 0.04em !important;
-    transition: all 0.15s !important;
 }
 .st-key-gq_btn button:hover, .stkey_gq_btn button:hover {
     background: linear-gradient(90deg, #1e40af 0%, #1d4ed8 100%) !important;
