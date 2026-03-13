@@ -1,18 +1,23 @@
 [theme]
-# 基底設為淺色，確保純白大表格與深色卡片能完美對比
+# 基底設為淺色
 base = "light"
 
-# 主要強調色（按鈕、Slider 滑桿、載入動畫）
-primaryColor = "#3b82f6"
+# 主要強調色（按鈕、Slider、focus 時邊框）
+primaryColor = "#1d4ed8"
 
-# 主頁面背景色（純白）
-backgroundColor = "#ffffff"
+# 主頁面背景色（改為極淺灰，護眼不刺眼）
+backgroundColor = "#f1f5f9"
 
-# 側邊欄與次要元件的背景色
-secondaryBackgroundColor = "#f8fafc"
+# 側邊欄與 input 欄位背景色
+secondaryBackgroundColor = "#e2e8f0"
 
 # 主要文字色
 textColor = "#334155"
 
 # 字體
 font = "sans-serif"
+
+# ── 邊框設定 ──
+showWidgetBorder = true
+borderColor = "#334155"
+baseRadius = "medium"
