@@ -61,14 +61,24 @@ def _check_connection() -> tuple:
 
     try:
         import utils.gsheets_db as _db
-        gc  = getattr(_db, "_gc", None) or getattr(_db, "gc", None)
+        # ★ v3：改用 _get_shared_client()（cache_resource），不再依賴 _gc alias
         sid = getattr(_db, "_SPREADSHEET_ID", None) or getattr(_db, "SPREADSHEET_ID", None)
-        if gc is None or sid is None:
-            result = (False, "本地測試模式")
+        if sid is None:
+            result = (False, "找不到 SPREADSHEET_ID")
         else:
-            sh = gc.open_by_key(sid)
-            _ = sh.title
-            result = (True, "雲端連線正常")
+            try:
+                client = _db._get_shared_client()
+                sh = client.open_by_key(sid)
+                _ = sh.title
+                result = (True, "雲端連線正常")
+            except Exception:
+                # 本地開發時 secrets 可能不存在，嘗試 _get_spreadsheet() 快取版本
+                try:
+                    sh = _db._get_spreadsheet()
+                    _ = sh.title
+                    result = (True, "雲端連線正常")
+                except Exception as e2:
+                    result = (False, f"連線異常：{str(e2)[:30]}")
     except Exception as e:
         result = (False, f"連線異常：{str(e)[:25]}")
 
