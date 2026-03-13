@@ -76,55 +76,44 @@ st.markdown(
     '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#0f2440 100%);' +
     'border-radius:16px;padding:28px 40px 24px 40px;' +
     'margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,0.2);text-align:center;">' +
-    '<div style="color:#f1f5f9;font-size:2.0rem;font-weight:900;margin:0 0 8px 0;">' +
-    '📋 個人成績查詢</div>' +
-    '<div style="color:#94a3b8;font-size:1.0rem;">' +
-    '輸入學號、姓名與驗證碼，查詢所有週次的互動參與與小考成績</div></div>',
+    '<div style="color:#f1f5f9;font-size:2.0rem;font-weight:900;margin:0;">' +
+    '📋 個人成績查詢</div></div>',
     unsafe_allow_html=True)
 
-# ── 表單卡片 ─────────────────────────────────────────────────────────
+# ── 查詢表單 ─────────────────────────────────────────────────────────
 st.markdown(
-    '<div style="border-radius:14px 14px 0 0;' +
-    'border:2px solid #0d9488;border-bottom:none;' +
-    'box-shadow:0 4px 16px rgba(15,118,110,0.12);">' +
-    '<div style="background:linear-gradient(90deg,#0f766e 0%,#0d9488 100%);' +
-    'border-radius:12px 12px 0 0;padding:13px 22px;">' +
-    '<span style="color:white;font-weight:700;font-size:1.05rem;' +
-    'letter-spacing:0.02em;">🔍 請輸入您的資料</span></div>' +
-    '<div style="background:#f0fdfa;padding:9px 22px;' +
-    'color:#0f766e;font-size:0.90rem;' +
-    'border-bottom:1px solid #ccfbf1;">' +
-    '驗證碼為老師發放的個人專屬碼，用於確認身分。' +
-    '查詢結果只有您自己能看到。</div></div>',
+    '<style>'
+    '.st-key-gq_container > div:first-child {'
+    '  border-radius:0 0 12px 12px !important;'
+    '  border-top:none !important;'
+    '  margin-top:-1px !important;'
+    '}'
+    '</style>'
+    '<div style="'
+    'background:linear-gradient(90deg,#0f766e 0%,#0d9488 100%);'
+    'border-radius:12px 12px 0 0;'
+    'padding:12px 20px 10px 20px;">'
+    '<span style="color:white;font-weight:700;font-size:1.0rem;">'
+    '🔍 請輸入您的資料</span>'
+    '<div style="color:rgba(255,255,255,0.88);font-size:0.95rem;margin-top:5px;">'
+    '請輸入學號、姓名與驗證碼後送出，系統將顯示您所有週次的互動參與與小考成績。'
+    '</div></div>',
     unsafe_allow_html=True)
 
-st.markdown(
-    '<div style="border-left:2px solid #0d9488;' +
-    'border-right:2px solid #0d9488;' +
-    'background:#f8fdfc;' +
-    'padding:20px 22px 10px 22px;">',
-    unsafe_allow_html=True)
+with st.container(border=True, key="gq_container"):
+    col_id, col_name, col_code = st.columns(3)
+    with col_id:
+        q_id   = st.text_input("📝 學號",   key="gq_id",   placeholder="請輸入學號")
+    with col_name:
+        q_name = st.text_input("📝 姓名",   key="gq_name", placeholder="請輸入姓名")
+    with col_code:
+        q_code = st.text_input("🔑 驗證碼", key="gq_code", placeholder="個人驗證碼",
+                                type="password")
 
-col_id, col_name, col_code = st.columns(3)
-with col_id:
-    q_id   = st.text_input("📝 學號",   key="gq_id",   placeholder="請輸入學號")
-with col_name:
-    q_name = st.text_input("📝 姓名",   key="gq_name", placeholder="請輸入姓名")
-with col_code:
-    q_code = st.text_input("🔑 驗證碼", key="gq_code", placeholder="個人驗證碼",
-                            type="password")
 
-st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown(
-    '<div style="border-left:2px solid #0d9488;' +
-    'border-right:2px solid #0d9488;' +
-    'border-bottom:2px solid #0d9488;' +
-    'border-radius:0 0 14px 14px;' +
-    'background:#ffffff;' +
-    'padding:14px 22px 20px 22px;' +
-    'margin-bottom:20px;">',
-    unsafe_allow_html=True)
+
+
 
 _gq_wait = seconds_until_retry("gq_search", cooldown_sec=10)
 if _gq_wait > 0:
