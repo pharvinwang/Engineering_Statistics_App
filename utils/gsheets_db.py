@@ -394,7 +394,7 @@ def get_all_scores(student_id):
 
     titles = _get_sheet_titles()
     for title in titles:
-        if title in ("Students", "測驗密碼"):
+        if title in ("Students", "測驗密碼", "總成績彙整", "互動成績彙整"):
             continue
         try:
             all_rows, id_to_rownum = _get_ws_data_cached(title)
