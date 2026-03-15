@@ -150,6 +150,10 @@ if st.button("🔍 查詢我的成績", key="gq_btn", use_container_width=True,
                 st.session_state["_gq_name"]    = q_name
                 st.session_state["_gq_id"]      = q_id
 
+            import re as _re_count
+            def _wk_key(t):
+                m = _re_count.match(r'(Week \d+)', t.strip()); return m.group(1) if m else None
+            _valid_week_count = len(set(w for r in records for w in [_wk_key(r["week"])] if w))
             st.markdown(
                 '<div style="border-radius:10px;border:1px solid #bbf7d0;margin:12px 0 6px 0;">' +
                 '<div style="background:#15803d;border-radius:10px 10px 0 0;padding:9px 16px;">' +
@@ -157,7 +161,7 @@ if st.button("🔍 查詢我的成績", key="gq_btn", use_container_width=True,
                 '<div style="background:#f0fdf4;border-radius:0 0 10px 10px;' +
                 'padding:10px 16px;color:#166534;font-size:0.95rem;">' +
                 "已找到 <b>" + q_name + "</b>（" + q_id +
-                "）的成績記錄，共 <b>" + str(len(records)) + "</b> 筆。" +
+                "）的成績記錄，共 <b>" + str(_valid_week_count) + "</b> 週。" +
                 '</div></div>', unsafe_allow_html=True)
 
             if not records:

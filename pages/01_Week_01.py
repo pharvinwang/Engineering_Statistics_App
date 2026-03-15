@@ -3,6 +3,7 @@ from utils.auth import require_login
 require_login()
 import streamlit as st
 import random
+import time
 
 try:
     import plotly.express as px
@@ -23,58 +24,9 @@ except Exception as e:
 
 
 # ── 輸入欄位樣式優化（精準 selector）★ v2.1 ──────────────────────────
-st.markdown('''
-<style>
-/* ── label 標題 ────────────────────────────────────────── */
-div[data-testid="stTextInput"] p,
-div[data-testid="stTextInput"] label {
-    font-weight: 700 !important;
-    color: #1e3a5f !important;
-    font-size: 0.92rem !important;
-    letter-spacing: 0.03em !important;
-    margin-bottom: 4px !important;
-}
-
-/* ── 輸入框容器（Streamlit 的真實 DOM 層）──────────────── */
-div[data-testid="stTextInput"] input {
-    border: 2px solid #334155 !important;
-    border-radius: 8px !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-    font-size: 1.0rem !important;
-    padding: 10px 14px !important;
-    height: 44px !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.10), inset 0 1px 2px rgba(0,0,0,0.04) !important;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
-}
-
-/* ── focus ─────────────────────────────────────────────── */
-div[data-testid="stTextInput"] input:focus {
-    border: 2px solid #1d4ed8 !important;
-    box-shadow: 0 0 0 3px rgba(29,78,216,0.20), 0 1px 4px rgba(0,0,0,0.10) !important;
-    outline: none !important;
-}
-
-/* ── placeholder ────────────────────────────────────────── */
-div[data-testid="stTextInput"] input::placeholder {
-    color: #94a3b8 !important;
-    font-size: 0.92rem !important;
-}
-
-/* ── 密碼眼睛 icon ──────────────────────────────────────── */
-div[data-testid="stTextInput"] button {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-/* ── hover 效果 ─────────────────────────────────────────── */
-div[data-testid="stTextInput"] input:hover:not(:focus) {
-    border-color: #475569 !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12), inset 0 1px 2px rgba(0,0,0,0.04) !important;
-}
-</style>
-''', unsafe_allow_html=True)
+st.markdown(
+    '<style>[data-baseweb="input"] > div > svg,[data-baseweb="input"] [role="presentation"]{display:none !important;}</style>',
+    unsafe_allow_html=True)
 
 
 try:
@@ -84,7 +36,7 @@ except Exception:
     _sidebar_ok = False
 
 try:
-    from utils.gsheets_db import save_score, check_has_submitted, verify_student, get_weekly_password, get_saved_progress, can_submit, mark_submitted, seconds_until_retry
+    from utils.gsheets_db import save_score, check_has_submitted, verify_student, get_weekly_password, get_saved_progress
 except ImportError:
     def save_score(*a, **k): return False
     def check_has_submitted(*a, **k): return False
@@ -128,18 +80,11 @@ if "password_correct" not in st.session_state or not st.session_state.password_c
     ''', unsafe_allow_html=True)
     st.stop()
 
-# ── 共用 _card() ──────────────────────────────────────────────────────
-def _card(color, bg, tc, title, msg):
-    html = (
-        '<div style="border-radius:12px;overflow:hidden;'
-        'box-shadow:0 2px 10px rgba(0,0,0,0.07);'
-        'border:1px solid #e2e8f0;margin:8px 0;">'
-        '<div style="background:' + color + ';padding:10px 18px;">'
-        '<span style="color:white;font-weight:700;font-size:1.0rem;">' + title + '</span></div>'
-        '<div style="background:' + bg + ';padding:14px 18px;'
-        'color:' + tc + ';font-size:1.05rem;line-height:1.7;">' + msg + '</div></div>'
-    )
-    st.markdown(html, unsafe_allow_html=True)
+from utils.week_components import (
+    card as _card, render_completion_rate,
+    render_progress_card, render_progress_summary,
+    render_teal_input_block, render_copyright
+)
 
 # ── Session State 初始化 ──────────────────────────────────────────────
 if "w1_locked" not in st.session_state:
@@ -657,136 +602,120 @@ st.markdown('''
     <span style="color:#ffffff;font-size:1.3rem;font-weight:800;">📝 2a. 本週互動參與記錄</span>
 </div>
 ''', unsafe_allow_html=True)
-st.markdown('<p style="color:#94a3b8;font-size:0.88rem;margin:0 0 10px 4px;">完成上方各節互動後，在此送出本週參與記錄（不計分，僅記錄完成狀況）</p>', unsafe_allow_html=True)
+st.markdown('<p style="color:#94a3b8;font-size:0.88rem;margin:0 0 10px 4px;">完成互動實驗後，輸入學號與驗證碼，將參與記錄送出給老師。</p>', unsafe_allow_html=True)
 
 done_count = count_done()
 total_count = len(TRACK_KEYS)
 done_pct = int(done_count / total_count * 100)
 
-# 追蹤清單標籤
-track_labels = {
-    "t1_quiz":   "1.1–1.2 資料型態測驗",
-    "t2_quiz":   "1.3 母體樣本測驗",
-    "t3_sim":    "1.4 鑽心試驗模擬",
-    "t4_sample": "1.5 隨機抽樣互動",
-    "t5_model":  "1.6 物理模型預測",
-}
+# ── Tab 橫排進度卡片 (統一樣式)
+render_completion_rate(done_count, total_count)
 
-# 進度卡片（5項分2列）
-_p_row1 = st.columns(3)
-_p_row2 = st.columns(2)
-_p_all = list(_p_row1) + list(_p_row2)
-for _i, (k, label) in enumerate(track_labels.items()):
-    done_flag = st.session_state.get("w1_track_" + k, False)
-    icon = "✅" if done_flag else "⬜"
-    with _p_all[_i]:
-        st.markdown(
-            '<div style="border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;margin-bottom:8px;">' +
-            '<div style="background:#1e3a5f;padding:8px 12px;">' +
-            '<span style="color:white;font-size:0.88rem;font-weight:700;">' + icon + " " + label + '</span>' +
-            '</div></div>',
-            unsafe_allow_html=True
-        )
+_W1_GROUPS = {"§1.1–1.2 資料型態": ["t1_quiz"], "§1.3 母體樣本": ["t2_quiz"], "§1.4 鑽心試驗": ["t3_sim"], "§1.5 隨機抽樣": ["t4_sample"], "§1.6 物理模型": ["t5_model"]}
+_W1_LABELS = {"t1_quiz": "資料型態測驗", "t2_quiz": "母體樣本測驗", "t3_sim": "鑽心試驗模擬", "t4_sample": "隨機抽樣互動", "t5_model": "物理模型預測"}
+render_progress_card("w1_track_", _W1_GROUPS, _W1_LABELS)
 
-_card("#0369a1", "#e0f2fe", "#0c4a6e", "📊 本週互動完成率",
-      "已完成 <b>" + str(done_count) + "/" + str(total_count) + "</b> 項互動（" + str(done_pct) + "%）")
-
-# 送出表單
-_card("#475569", "#f8fafc", "#334155", "📤 送出互動參與記錄",
-      "請填寫學號、姓名與驗證碼後送出，系統將記錄本週互動完成狀況。")
-
-col_2a_id, col_2a_name, col_2a_code = st.columns(3)
-with col_2a_id:   ia_id   = st.text_input("📝 學號", key="w1_ia_id")
-with col_2a_name: ia_name = st.text_input("📝 姓名", key="w1_ia_name")
-with col_2a_code: ia_code = st.text_input("🔑 驗證碼", type="password", key="w1_ia_code")
-
-# ── 即時顯示即將送出的進度明細（讓同學確認是否正確）──────────────
-_track_label_map_w1 = {
-    "t1_quiz":   "資料型態測驗",
-    "t2_quiz":   "母體樣本測驗",
-    "t3_sim":    "鑽心試驗模擬",
-    "t4_sample": "隨機抽樣互動",
-    "t5_model":  "物理模型預測",
-}
-_preview_done_w1 = sum(1 for k in TRACK_KEYS if st.session_state.get("w1_track_" + k, False))
-_preview_pct_w1  = int(_preview_done_w1 / len(TRACK_KEYS) * 100)
-_preview_color_w1 = "#22c55e" if _preview_pct_w1 >= 80 else "#f59e0b" if _preview_pct_w1 >= 50 else "#ef4444"
-_items_html_w1 = " ".join(
-    f'<span style="font-size:0.82rem;padding:2px 8px;margin:2px;border-radius:6px;display:inline-block;'
-    f'background:{"#dcfce7" if st.session_state.get("w1_track_"+k, False) else "#f1f5f9"};'
-    f'color:{"#166534" if st.session_state.get("w1_track_"+k, False) else "#94a3b8"};">'
-    f'{"✅" if st.session_state.get("w1_track_"+k, False) else "⬜"} {_track_label_map_w1.get(k,k)}</span>'
-    for k in TRACK_KEYS
+ia_id, ia_name, ia_code = render_teal_input_block(
+    container_key = "w1_submit_container",
+    title         = "📤 送出互動參與記錄",
+    subtitle      = "請填寫學號、姓名與驗證碼後送出，系統將記錄本週互動完成狀況。",
+    id_key        = "w1_ia_id",
+    name_key      = "w1_ia_name",
+    code_key      = "w1_ia_code",
 )
-st.markdown(
-    f'<div style="border-radius:10px;overflow:hidden;border:1px solid {_preview_color_w1}44;margin:8px 0;">' +
-    f'<div style="background:{_preview_color_w1}18;padding:9px 16px;border-bottom:1px solid {_preview_color_w1}33;">' +
-    f'<span style="font-weight:700;color:{_preview_color_w1};">📋 送出前確認：目前進度 {_preview_pct_w1}%（{_preview_done_w1}/{len(TRACK_KEYS)} 項）</span>' +
-    f'<span style="font-size:0.82rem;color:#94a3b8;margin-left:8px;">若進度與預期不符，請先返回完成各項互動再送出</span>' +
-    f'</div><div style="padding:10px 16px;line-height:2.0;">{_items_html_w1}</div></div>',
-    unsafe_allow_html=True
-)
+render_progress_summary(done_count, total_count)
 
-_w1_wait = seconds_until_retry("w1_ia")
-if _w1_wait > 0:
-    st.info(f"⏳ 系統處理中，請等待 **{_w1_wait} 秒**後再送出（防止重複送出影響系統穩定性）")
-if st.button("📤 送出本週互動記錄", key="w1_ia_submit", use_container_width=True,
-             disabled=(_w1_wait > 0)):
-    mark_submitted("w1_ia")
-    if ia_id and ia_name and ia_code:
-        is_valid_ia, student_idx_ia = verify_student(ia_id, ia_name, ia_code)
-        if not is_valid_ia:
-            _card("#ef4444", "#fef2f2", "#991b1b", "⛔ 身分驗證失敗",
-                  "學號、姓名或驗證碼有誤，請重新確認！")
-        else:
-            detail_parts = []
-            for k in TRACK_KEYS:
-                done_flag = st.session_state.get("w1_track_" + k, False)
-                symbol = "V" if done_flag else "-"
-                detail_parts.append(k + ":" + symbol)
-            detail_str = " | ".join(detail_parts)
-            ia_record = str(done_pct) + "% (" + str(done_count) + "/" + str(total_count) + ") | " + detail_str
+_W1_COOLDOWN = 10
+_w1_in_cooling = st.session_state.get("w1_ia_cooling", False)
+if st.button("📤 送出本週互動記錄", key="w1_ia_submit",
+             use_container_width=True, disabled=_w1_in_cooling):
 
-            # ── 防止 session 重連後進度歸零寫入 ──────────────────
-            try:
-                from utils.gsheets_db import get_saved_progress as _gsp
-                _saved = _gsp(ia_id, "Week 01 互動")
-                if _saved and _saved["pct"] > done_pct:
-                    _saved_detail = _saved.get("detail", "")
-                    for _part in _saved_detail.split("|"):
-                        _part = _part.strip()
-                        if ":" in _part:
-                            _k, _v = _part.split(":", 1)
-                            _k = _k.strip()
-                            if _k in TRACK_KEYS and _v.strip() == "V":
-                                st.session_state["w1_track_" + _k] = True
-                    done_count = count_done()
-                    done_pct   = int(done_count / total_count * 100)
-                    detail_parts = []
-                    for k in TRACK_KEYS:
-                        done_flag = st.session_state.get("w1_track_" + k, False)
-                        symbol = "V" if done_flag else "-"
-                        detail_parts.append(k + ":" + symbol)
-                    detail_str = " | ".join(detail_parts)
-                    ia_record = str(done_pct) + "% (" + str(done_count) + "/" + str(total_count) + ") | " + detail_str
-            except Exception:
-                pass
-
-            success_ia = save_score(student_idx_ia, ia_id, ia_name, "Week 01 互動", ia_record, done_pct)
-            if success_ia:
-                # ✅ 成功：只存結果，不清除 w1_track_* 進度
-                st.session_state["w1_ia_submitted"] = {
-                    "name": ia_name, "id": ia_id,
-                    "pct": done_pct, "done": done_count, "total": total_count
-                }
-                st.rerun()
-            else:
-                _card("#ef4444", "#fef2f2", "#991b1b", "❌ 送出失敗，請稍後重試",
-                      "伺服器暫時忙碌（可能是很多同學同時送出）。<br>"
-                      "您的互動進度 <b>完全保留</b>，請等待 <b>10～20 秒</b>後再按一次「送出」即可。")
-    else:
+    # ── 基本欄位檢查（不啟動冷卻）────────────────────────────────
+    if not (ia_id and ia_name and ia_code):
         _card("#f59e0b", "#fffbeb", "#92400e", "⚠️ 資料不完整",
               "請完整填寫學號、姓名與驗證碼再送出。")
+        st.stop()
+
+    # ── 身分驗證（不啟動冷卻）────────────────────────────────────
+    is_valid_ia, student_idx_ia = verify_student(ia_id, ia_name, ia_code)
+    if not is_valid_ia:
+        _card("#ef4444", "#fef2f2", "#991b1b", "⛔ 身分驗證失敗",
+              "學號、姓名或驗證碼有誤，請重新確認！")
+        st.stop()
+
+    # ── 驗證通過，啟動冷卻 ────────────────────────────────────────
+    st.session_state["w1_ia_cooling"] = True
+    _w1_ph = st.empty()
+
+    # 準備寫入資料
+    detail_parts = []
+    for k in TRACK_KEYS:
+        symbol = "V" if st.session_state.get("w1_track_" + k, False) else "-"
+        detail_parts.append(k + ":" + symbol)
+    detail_str = " | ".join(detail_parts)
+    ia_record = str(done_pct) + "% (" + str(done_count) + "/" + str(total_count) + ") | " + detail_str
+    try:
+        from utils.gsheets_db import get_saved_progress as _gsp
+        _saved = _gsp(ia_id, "Week 01 互動")
+        if _saved and _saved["pct"] > done_pct:
+            for _part in _saved.get("detail", "").split("|"):
+                _part = _part.strip()
+                if ":" in _part:
+                    _k, _v = _part.split(":", 1)
+                    if _k.strip() in TRACK_KEYS and _v.strip() == "V":
+                        st.session_state["w1_track_" + _k.strip()] = True
+            done_count = count_done()
+            done_pct   = int(done_count / total_count * 100)
+            detail_parts = [k + ":" + ("V" if st.session_state.get("w1_track_" + k) else "-")
+                            for k in TRACK_KEYS]
+            detail_str = " | ".join(detail_parts)
+            ia_record = str(done_pct) + "% (" + str(done_count) + "/" + str(total_count) + ") | " + detail_str
+    except Exception:
+        pass
+
+    # ── 第 1 次寫入 ──────────────────────────────────────────────
+    success_ia = save_score(student_idx_ia, ia_id, ia_name, "Week 01 互動", ia_record, done_pct)
+    if success_ia:
+        for _i in range(_W1_COOLDOWN, 0, -1):
+            _w1_ph.warning(f"⏳ 系統寫入成功，防止重複送出（{_i} 秒後解除）")
+            time.sleep(1)
+        _w1_ph.empty()
+        st.session_state["w1_ia_cooling"] = False
+        st.session_state["w1_ia_submitted"] = {"name": ia_name, "id": ia_id,
+            "pct": done_pct, "done": done_count, "total": total_count}
+        st.rerun()
+
+    # ── 第 1 次失敗 → 倒數後自動第 2 次 ────────────────────────
+    for _i in range(_W1_COOLDOWN, 0, -1):
+        _w1_ph.warning(f"⏳ 寫入失敗，目前自動第 1 次嘗試寫入（{_i} 秒後解除）")
+        time.sleep(1)
+    success_ia = save_score(student_idx_ia, ia_id, ia_name, "Week 01 互動", ia_record, done_pct)
+    if success_ia:
+        for _i in range(_W1_COOLDOWN, 0, -1):
+            _w1_ph.warning(f"⏳ 系統寫入成功，防止重複送出（{_i} 秒後解除）")
+            time.sleep(1)
+        _w1_ph.empty()
+        st.session_state["w1_ia_cooling"] = False
+        st.session_state["w1_ia_submitted"] = {"name": ia_name, "id": ia_id,
+            "pct": done_pct, "done": done_count, "total": total_count}
+        st.rerun()
+
+    # ── 第 2 次失敗 → 倒數後自動第 3 次 ────────────────────────
+    for _i in range(_W1_COOLDOWN, 0, -1):
+        _w1_ph.warning(f"⏳ 寫入失敗，目前自動第 2 次嘗試寫入（{_i} 秒後解除）")
+        time.sleep(1)
+    success_ia = save_score(student_idx_ia, ia_id, ia_name, "Week 01 互動", ia_record, done_pct)
+    if success_ia:
+        _w1_ph.empty()
+        st.session_state["w1_ia_cooling"] = False
+        st.session_state["w1_ia_submitted"] = {"name": ia_name, "id": ia_id,
+            "pct": done_pct, "done": done_count, "total": total_count}
+        st.rerun()
+    else:
+        _w1_ph.empty()
+        st.session_state["w1_ia_cooling"] = False
+        _card("#ef4444", "#fef2f2", "#991b1b", "❌ 經 2 次自動嘗試仍寫入失敗",
+              "請稍待一會後再自行按下送出，或聯繫授課教師。")
 
 st.divider()
 
@@ -1003,15 +932,4 @@ with st.expander("📚 本週核心概念速查卡（考前複習用）", expand
                 unsafe_allow_html=True
             )
 
-# =====================================================================
-# 頁面底部版權聲明 badge
-# =====================================================================
-st.markdown('''
-<div style="margin:20px 0 8px 0;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;">
-    <span style="display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;
-        border-radius:20px;padding:5px 18px;color:#64748b;font-size:0.78rem;line-height:1.6;">
-        📚 教學輔助用途 · 課本例題引用自《工程統計》Lawrence L. Lapin 著；潘南飛、溫志中 編譯
-        · Cengage Learning Asia · ISBN 978-957-9282-94-9
-    </span>
-</div>
-''', unsafe_allow_html=True)
+render_copyright()
