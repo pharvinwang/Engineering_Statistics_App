@@ -78,6 +78,7 @@ TRACK_KEYS = {
     "t4_quiz":   False,   # Tab4 隨堂測驗（答對才算）
     "t5_series": False,   # Tab5 串聯可靠度滑桿（需移動才算）
     "t5_parallel":False,  # Tab5 並聯可靠度滑桿（需移動才算）
+    "t5_design": False,   # Tab5 升級vs並聯設計挑戰滑桿（需移動才算）
     "t5_quiz":   False,   # Tab5 隨堂測驗（答對才算）
 }
 # ── 互動參與送出：分組與標籤（傳給 render_ia_section）────────────
@@ -86,14 +87,15 @@ GROUPS_IA = {
     "Tab2 §3.2 複合事件":  ["t2_mult", "t2_tree", "t2_quiz"],
     "Tab3 §3.3 條件機率":  ["t3_cond", "t3_quiz"],
     "Tab4 §3.4 機率樹":    ["t4_tree", "t4_quiz"],
-    "Tab5 §3.5 系統可靠度": ["t5_series", "t5_parallel", "t5_quiz"],
+    "Tab5 §3.5 系統可靠度": ["t5_series", "t5_parallel", "t5_design", "t5_quiz"],
 }
 LABELS_IA = {
     "t1_prob": "基本機率滑桿", "t1_add": "加法法則計算", "t1_quiz": "隨堂測驗",
     "t2_mult": "乘法法則滑桿", "t2_tree": "例題驗算",    "t2_quiz": "隨堂測驗",
     "t3_cond": "條件機率計算", "t3_quiz": "隨堂測驗",
     "t4_tree": "機率樹互動",   "t4_quiz": "隨堂測驗",
-    "t5_series": "串聯設計器", "t5_parallel": "並聯設計器", "t5_quiz": "隨堂測驗",
+    "t5_series": "串聯設計器", "t5_parallel": "並聯設計器",
+    "t5_design": "升級vs並聯挑戰", "t5_quiz": "隨堂測驗",
 }
 
 for k in TRACK_KEYS:
@@ -106,6 +108,7 @@ _SLIDER_INIT = {
     "w3_mission_n": 5,
     "w3_r1": 90, "w3_r2": 80, "w3_r3": 95,
     "w3_p1": 40, "w3_p2": 50, "w3_p3": 60,
+    "w3_r2_upgrade": 0.95, "w3_n_redundant": 2,
 }
 for _sk in _SLIDER_INIT:
     if "w3_sld_moved_" + _sk not in st.session_state:
@@ -1104,19 +1107,23 @@ with tab4:
                                        "機率": round(p1*p2*p3, 6)})
 
         df_chip = pd.DataFrame(paths_chip)
-        col_c1, col_c2 = st.columns([1,1])
+        pGGG = round((chip_G/100)*((chip_G-1)/99)*((chip_G-2)/98), 6)
+        pGGD = round((chip_G/100)*((chip_G-1)/99)*(chip_D/98), 6)
+        total_chip = round(sum(r["機率"] for r in paths_chip), 4)
+
+        col_c1, col_c2 = st.columns([1, 1])
         with col_c1:
             st.dataframe(df_chip, use_container_width=True, hide_index=True)
         with col_c2:
-            pGGG = round((chip_G/100)*((chip_G-1)/99)*((chip_G-2)/98), 6)
-            pGGD = round((chip_G/100)*((chip_G-1)/99)*(chip_D/98), 6)
-            total_chip = round(sum(r["機率"] for r in paths_chip), 4)
-            st.metric("P(G₁G₂G₃) 全良品",   str(pGGG))
-            st.metric("P(G₁G₂D₃) 最後不良",  str(pGGD))
-            st.metric("P(至少 1 個不良)",      str(round(1-pGGG, 5)))
-            st.metric("8 路徑總和",            str(total_chip))
-            if abs(total_chip - 1.0) < 0.002:
-                _card("#22c55e","#f0fdf4","#166534","✅ 完備性通過","8 條路徑機率總和 = 1.000")
+            row1_a, row1_b = st.columns(2)
+            row2_a, row2_b = st.columns(2)
+            with row1_a: st.metric("P(G₁G₂G₃) 全良品",  str(pGGG))
+            with row1_b: st.metric("P(G₁G₂D₃) 最後不良", str(pGGD))
+            with row2_a: st.metric("P(至少 1 個不良)",    str(round(1-pGGG, 5)))
+            with row2_b: st.metric("8 路徑總和",           str(total_chip))
+        # 完備性卡片全寬顯示，對齊左側底部
+        if abs(total_chip - 1.0) < 0.002:
+            _card("#22c55e","#f0fdf4","#166534","✅ 完備性通過","8 條路徑機率總和 = 1.000")
 
         if chip_G == 90:
             _card("#0369a1","#e0f2fe","#0c4a6e","📖 課本例題 3.9 對照（G=90, D=10）",
@@ -1233,9 +1240,9 @@ with tab5:
         </div>
         ''', unsafe_allow_html=True)
 
-        col_reset5a, _ = st.columns([1, 5])
+        col_reset5a, _ = st.columns([2, 3])
         with col_reset5a:
-            if st.button("🔄 復原課本預設（0.90, 0.80, 0.95）", key="w3_reset_series"):
+            if st.button("🔄 復原預設（0.90, 0.80, 0.95）", key="w3_reset_series"):
                 for k in ["w3_r1","w3_r2","w3_r3"]:
                     if k in st.session_state:
                         del st.session_state[k]
@@ -1260,11 +1267,110 @@ with tab5:
         with col_m3: st.metric("R₃ 警報",   str(R3))
         with col_m4: st.metric("🔗 串聯 Rₛ", str(Rs_series))
 
+        # ── 串聯架構 SVG 圖示 ────────────────────────────────────────────
+        def _sc(r):
+            if r >= 0.95: return "#16a34a"
+            if r >= 0.85: return "#2563eb"
+            if r >= 0.75: return "#d97706"
+            return "#dc2626"
+
+        def _bg(r):
+            if r >= 0.95: return "#f0fdf4"
+            if r >= 0.85: return "#eff6ff"
+            if r >= 0.75: return "#fffbeb"
+            return "#fef2f2"
+
+        rs_vals_a   = [R1, R2, R3]
+        names_a     = ["感測器", "無線傳輸", "警報主機"]
+        nums_a      = ["1", "2", "3"]
+        weakest_a   = min(rs_vals_a)
+        # 方塊尺寸：加高以容納三行文字
+        bw_a, bh_a  = 100, 68
+        gap_a       = 52          # 方塊間水平間距
+        pad_left    = 30          # 左側輸入線長
+        x_starts    = [pad_left, pad_left + bw_a + gap_a, pad_left + 2*(bw_a + gap_a)]
+        rs_box_w    = 148
+        SVG_W_A     = x_starts[-1] + bw_a + 16 + rs_box_w + 12
+        # 高度：標題區(42) + 方塊區(bh_a) + 計算式區(36) + 底部留白(8)
+        title_h     = 42
+        calc_h      = 36
+        bot_pad     = 8
+        SVG_H_A     = title_h + bh_a + calc_h + bot_pad
+        mid_y_a     = title_h + bh_a // 2   # 方塊中心線
+
+        parts_a = [
+            f'<svg viewBox="0 0 {SVG_W_A} {SVG_H_A}" xmlns="http://www.w3.org/2000/svg" ',
+            f'style="width:100%;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;">',
+            f'<text x="12" y="18" font-size="13" font-weight="700" fill="#1e3a5f">串聯系統架構圖</text>',
+            f'<text x="12" y="34" font-size="10" fill="#94a3b8">所有單元皆需正常運作，系統才能運作</text>',
+            # 左側輸入線
+            f'<line x1="4" y1="{mid_y_a}" x2="{x_starts[0]}" y2="{mid_y_a}" stroke="#64748b" stroke-width="2"/>',
+        ]
+
+        for i, (xb, rv, num, name) in enumerate(zip(x_starts, rs_vals_a, nums_a, names_a)):
+            bc       = _sc(rv)
+            bg       = _bg(rv)
+            is_w     = (rv == weakest_a)
+            sw       = 3 if is_w else 1.5
+            sc       = "#f59e0b" if is_w else bc
+            top_y    = title_h
+            # 方塊
+            parts_a.append(f'<rect x="{xb}" y="{top_y}" width="{bw_a}" height="{bh_a}" rx="9" fill="{bg}" stroke="{sc}" stroke-width="{sw}"/>')
+            # clipPath for fill bar
+            parts_a.append(f'<clipPath id="clipA{i}"><rect x="{xb}" y="{top_y}" width="{bw_a}" height="{bh_a}" rx="9"/></clipPath>')
+            # 底部填充條（可靠度視覺化）
+            bar_h2 = int(bh_a * rv)
+            bar_y2 = top_y + bh_a - bar_h2
+            parts_a.append(f'<rect x="{xb}" y="{bar_y2}" width="{bw_a}" height="{bar_h2}" fill="{bc}" opacity="0.15" clip-path="url(#clipA{i})"/>')
+            # 編號（大）
+            parts_a.append(f'<text x="{xb+bw_a//2}" y="{top_y+20}" text-anchor="middle" font-size="15" font-weight="900" fill="{bc}">{num}</text>')
+            # 名稱
+            parts_a.append(f'<text x="{xb+bw_a//2}" y="{top_y+36}" text-anchor="middle" font-size="11" fill="#374151">{name}</text>')
+            # 可靠度（大字）
+            parts_a.append(f'<text x="{xb+bw_a//2}" y="{top_y+56}" text-anchor="middle" font-size="14" font-weight="800" fill="{bc}">{rv:.0%}</text>')
+            # 最弱標記（框內右上角小標）
+            if is_w:
+                parts_a.append(f'<rect x="{xb+bw_a-36}" y="{top_y+4}" width="32" height="14" rx="4" fill="#fef3c7"/>')
+                parts_a.append(f'<text x="{xb+bw_a-20}" y="{top_y+14}" text-anchor="middle" font-size="9" fill="#d97706" font-weight="700">⚠ 最弱</text>')
+            # 連接線＋× 符號
+            if i < 2:
+                lx1 = xb + bw_a
+                lx2 = lx1 + gap_a
+                mx  = lx1 + gap_a // 2
+                parts_a.append(f'<line x1="{lx1}" y1="{mid_y_a}" x2="{lx2}" y2="{mid_y_a}" stroke="#64748b" stroke-width="2"/>')
+                parts_a.append(f'<text x="{mx}" y="{mid_y_a+5}" text-anchor="middle" font-size="17" fill="#94a3b8">×</text>')
+
+        # 右側輸出線 → Rₛ 色塊
+        x_rs      = x_starts[-1] + bw_a + 16
+        rs_color_a = _sc(Rs_series)
+        rs_bg_a    = _bg(Rs_series)
+        rs_box_h   = bh_a
+        parts_a += [
+            f'<line x1="{x_starts[-1]+bw_a}" y1="{mid_y_a}" x2="{x_rs}" y2="{mid_y_a}" stroke="#64748b" stroke-width="2"/>',
+            f'<rect x="{x_rs}" y="{title_h}" width="{rs_box_w}" height="{rs_box_h}" rx="9" fill="{rs_bg_a}" stroke="{rs_color_a}" stroke-width="2"/>',
+            f'<text x="{x_rs+rs_box_w//2}" y="{title_h+20}" text-anchor="middle" font-size="11" fill="#64748b">系統可靠度</text>',
+            f'<text x="{x_rs+rs_box_w//2}" y="{title_h+42}" text-anchor="middle" font-size="18" font-weight="900" fill="{rs_color_a}">Rₛ = {Rs_series:.4f}</text>',
+            f'<text x="{x_rs+rs_box_w//2}" y="{title_h+58}" text-anchor="middle" font-size="10" fill="#94a3b8">≤ 最弱單元 {weakest_a:.2f}</text>',
+        ]
+
+        # 計算式（圖示下方）
+        calc_y = title_h + bh_a + 22
+        eq_str = f"{R1:.2f} × {R2:.2f} × {R3:.2f} = {Rs_series:.4f}"
+        parts_a += [
+            f'<rect x="4" y="{title_h+bh_a+6}" width="{SVG_W_A-8}" height="28" rx="6" fill="#f1f5f9"/>',
+            f'<text x="{SVG_W_A//2}" y="{calc_y}" text-anchor="middle" font-size="12" fill="#475569">',
+            f'Rₛ = R₁ × R₂ × R₃ = {eq_str}',
+            f'</text>',
+        ]
+        parts_a.append("</svg>")
+        st.markdown("".join(parts_a), unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+
         fig5a = go.Figure(go.Bar(
             x=["R₁ 感測器","R₂ 傳輸","R₃ 警報","Rₛ 串聯系統"],
             y=[R1, R2, R3, Rs_series],
-            marker_color=["#3b82f6","#3b82f6","#3b82f6","#ef4444"],
-            text=[str(v) for v in [R1, R2, R3, Rs_series]],
+            marker_color=[_sc(R1), _sc(R2), _sc(R3), _sc(Rs_series)],
+            text=[f"{v:.1%}" for v in [R1, R2, R3, Rs_series]],
             textposition="outside", textfont=dict(size=13),
             hovertemplate="%{x}<br>可靠度: %{y:.4f}<extra></extra>"
         ))
@@ -1272,7 +1378,7 @@ with tab5:
                         annotation_text="最弱單元=" + str(round(min_r,2)),
                         annotation_position="top right", annotation_font_size=F_ANNOTATION)
         set_chart_layout(fig5a, "串聯系統：各單元可靠度 vs 系統可靠度", "單元", "可靠度")
-        fig5a.update_layout(height=420, yaxis=dict(range=[0, 1.15]),
+        fig5a.update_layout(height=360, yaxis=dict(range=[0, 1.15]),
                             margin=dict(t=60, b=40, l=50, r=20))
         st.plotly_chart(fig5a, use_container_width=True)
 
@@ -1318,9 +1424,9 @@ with tab5:
         </div>
         ''', unsafe_allow_html=True)
 
-        col_reset5b, _ = st.columns([1, 5])
+        col_reset5b, _ = st.columns([2, 3])
         with col_reset5b:
-            if st.button("🔄 復原課本預設（0.40, 0.50, 0.60）", key="w3_reset_parallel"):
+            if st.button("🔄 復原預設（0.40, 0.50, 0.60）", key="w3_reset_parallel"):
                 for k in ["w3_p1","w3_p2","w3_p3"]:
                     if k in st.session_state:
                         del st.session_state[k]
@@ -1347,11 +1453,117 @@ with tab5:
         with col_mp4: st.metric("⚡ 並聯 Rₛ",    str(Rs_par))
         with col_mp5: st.metric("🔗 串聯（對比）", str(Rs_ser2))
 
+        # ── 並聯架構 SVG 圖示 ────────────────────────────────────────────
+        # 版面設計（從左到右）：
+        #   [輸入線+OR] → [左節點] → [三個並聯方塊] → [右節點] → [輸出線] → [Rₛ框]
+        #   名稱標籤放在方塊「內部」上半行，可靠度放下半行，完全不外溢
+        def _pc(r):
+            if r >= 0.95: return "#16a34a"
+            if r >= 0.85: return "#2563eb"
+            if r >= 0.75: return "#d97706"
+            return "#dc2626"
+
+        def _pbg(r):
+            if r >= 0.95: return "#f0fdf4"
+            if r >= 0.85: return "#eff6ff"
+            if r >= 0.75: return "#fffbeb"
+            return "#fef2f2"
+
+        par_vals   = [P1, P2, P3]
+        par_nums   = ["P₁", "P₂", "P₃"]
+        par_names  = ["液壓缸 1", "液壓缸 2", "液壓缸 3"]
+        fail_rate  = round((1-P1)*(1-P2)*(1-P3), 4)
+
+        # ── 尺寸常數（全部在這裡調，不會互相干擾）──
+        title_h  = 36    # 標題列高
+        pbw      = 120   # 方塊寬
+        pbh      = 44    # 方塊高（放得下兩行字）
+        p_gap    = 8     # 方塊間距
+        in_len   = 36    # 左輸入線長度（OR標籤在這段上）
+        out_len  = 16    # 右輸出到Rₛ框的連線長
+        rs_w     = 140   # Rₛ框寬
+        rs_h     = 58    # Rₛ框高（固定）
+        calc_h   = 30    # 底部計算式列高
+        bot_pad  = 6
+
+        n        = 3
+        grp_h    = n*pbh + (n-1)*p_gap        # 並聯組總高
+        node_x   = in_len                      # 左節點 x
+        box_x    = node_x                      # 方塊左邊 x（與左節點對齊）
+        rnode_x  = node_x + pbw               # 右節點 x
+        top_y    = title_h                     # 方塊組起始 y
+        ys       = [top_y + i*(pbh+p_gap) for i in range(n)]
+        mys      = [y + pbh//2 for y in ys]   # 各方塊中心 y
+        sys_cy   = top_y + grp_h//2           # 並聯組垂直中心
+
+        SVG_W = rnode_x + out_len + rs_w + 8
+        SVG_H = title_h + grp_h + calc_h + bot_pad
+
+        parts_b = [
+            f'<svg viewBox="0 0 {SVG_W} {SVG_H}" xmlns="http://www.w3.org/2000/svg" ',
+            f'style="width:100%;max-height:360px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;">',
+            # 標題
+            f'<text x="10" y="15" font-size="12" font-weight="700" fill="#1e3a5f">並聯系統架構圖</text>',
+            f'<text x="10" y="28" font-size="10" fill="#94a3b8">任一單元正常即可，系統即可運作</text>',
+            # 左輸入線（從 x=4 到 node_x）
+            f'<line x1="4" y1="{sys_cy}" x2="{node_x}" y2="{sys_cy}" stroke="#64748b" stroke-width="2"/>',
+            # OR 標籤（浮在輸入線正中央，帶白底避免與線重疊）
+            f'<rect x="{in_len//2 - 14}" y="{sys_cy-9}" width="28" height="16" rx="4" fill="white" stroke="#ddd6fe" stroke-width="1"/>',
+            f'<text x="{in_len//2}" y="{sys_cy+3}" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">OR</text>',
+            # 左節點垂直線
+            f'<line x1="{node_x}" y1="{mys[0]}" x2="{node_x}" y2="{mys[-1]}" stroke="#64748b" stroke-width="2"/>',
+            # 右節點垂直線
+            f'<line x1="{rnode_x}" y1="{mys[0]}" x2="{rnode_x}" y2="{mys[-1]}" stroke="#64748b" stroke-width="2"/>',
+        ]
+
+        for i, (yb, rv, num, name) in enumerate(zip(ys, par_vals, par_nums, par_names)):
+            bc    = _pc(rv)
+            bg    = _pbg(rv)
+            my    = mys[i]
+            bar_w = int(pbw * rv)
+            # 左分支水平線
+            parts_b.append(f'<line x1="{node_x}" y1="{my}" x2="{box_x}" y2="{my}" stroke="#64748b" stroke-width="1.5"/>')
+            # 右分支水平線
+            parts_b.append(f'<line x1="{rnode_x}" y1="{my}" x2="{rnode_x}" y2="{my}" stroke="#64748b" stroke-width="1.5"/>')
+            # 方塊背景
+            parts_b.append(f'<rect x="{box_x}" y="{yb}" width="{pbw}" height="{pbh}" rx="7" fill="{bg}" stroke="{bc}" stroke-width="2"/>')
+            # 橫向填充條（可靠度視覺化）
+            parts_b.append(f'<clipPath id="pB{i}"><rect x="{box_x}" y="{yb}" width="{pbw}" height="{pbh}" rx="7"/></clipPath>')
+            parts_b.append(f'<rect x="{box_x}" y="{yb}" width="{bar_w}" height="{pbh}" fill="{bc}" opacity="0.15" clip-path="url(#pB{i})"/>')
+            # 第一行：「P₁  液壓缸 1」合在一起，放在方塊上半
+            parts_b.append(f'<text x="{box_x+pbw//2}" y="{yb+16}" text-anchor="middle" font-size="11" font-weight="700" fill="{bc}">{num}　{name}</text>')
+            # 第二行：可靠度%，放在方塊下半
+            parts_b.append(f'<text x="{box_x+pbw//2}" y="{yb+34}" text-anchor="middle" font-size="14" font-weight="900" fill="{bc}">{rv:.0%}</text>')
+
+        # 右輸出線 + Rₛ 框（固定高，垂直置中）
+        rs_c  = _pc(Rs_par)
+        rs_bg = _pbg(Rs_par)
+        rx    = rnode_x + out_len
+        ry    = sys_cy - rs_h//2
+        parts_b += [
+            f'<line x1="{rnode_x}" y1="{sys_cy}" x2="{rx}" y2="{sys_cy}" stroke="#64748b" stroke-width="2"/>',
+            f'<rect x="{rx}" y="{ry}" width="{rs_w}" height="{rs_h}" rx="8" fill="{rs_bg}" stroke="{rs_c}" stroke-width="2"/>',
+            f'<text x="{rx+rs_w//2}" y="{ry+16}" text-anchor="middle" font-size="10" fill="#64748b">並聯系統可靠度</text>',
+            f'<text x="{rx+rs_w//2}" y="{ry+36}" text-anchor="middle" font-size="17" font-weight="900" fill="{rs_c}">Rₛ = {Rs_par:.4f}</text>',
+            f'<text x="{rx+rs_w//2}" y="{ry+52}" text-anchor="middle" font-size="10" fill="#94a3b8">故障率 = {fail_rate:.4f}</text>',
+        ]
+
+        # 計算式列（底部）
+        ct = title_h + grp_h + 4
+        eq_b = f"1−(1−{P1:.2f})(1−{P2:.2f})(1−{P3:.2f}) = 1−{fail_rate:.4f} = {Rs_par:.4f}"
+        parts_b += [
+            f'<rect x="4" y="{ct}" width="{SVG_W-8}" height="{calc_h-2}" rx="5" fill="#f1f5f9"/>',
+            f'<text x="{SVG_W//2}" y="{ct+18}" text-anchor="middle" font-size="11" fill="#475569">Rₛ = {eq_b}</text>',
+        ]
+        parts_b.append("</svg>")
+        st.markdown("".join(parts_b), unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+
         fig5b = go.Figure(go.Bar(
             x=["P₁","P₂","P₃","並聯 Rₛ","串聯（對比）"],
             y=[P1, P2, P3, Rs_par, Rs_ser2],
-            marker_color=["#94a3b8","#94a3b8","#94a3b8","#22c55e","#ef4444"],
-            text=[str(v) for v in [P1, P2, P3, Rs_par, Rs_ser2]],
+            marker_color=[_pc(P1), _pc(P2), _pc(P3), "#22c55e","#ef4444"],
+            text=[f"{v:.1%}" for v in [P1, P2, P3, Rs_par, Rs_ser2]],
             textposition="outside", textfont=dict(size=13),
             hovertemplate="%{x}<br>可靠度: %{y:.4f}<extra></extra>"
         ))
@@ -1359,7 +1571,7 @@ with tab5:
                         annotation_text="最大單元=" + str(round(max_p,2)),
                         annotation_position="top right", annotation_font_size=F_ANNOTATION)
         set_chart_layout(fig5b, "並聯 vs 串聯系統可靠度比較", "單元 / 系統", "可靠度")
-        fig5b.update_layout(height=420, yaxis=dict(range=[0, 1.15]),
+        fig5b.update_layout(height=360, yaxis=dict(range=[0, 1.15]),
                             margin=dict(t=60, b=40, l=50, r=20))
         st.plotly_chart(fig5b, use_container_width=True)
 
@@ -1373,7 +1585,7 @@ with tab5:
                   "。冗餘設計是提升可靠度最有效的策略。")
 
     # ── 互動實驗室 C：三方案比較（課本圖 3.9）───────────────────────────
-    with st.expander("📖 課本圖 3.9 重現：原始 vs 升級 vs 重複三方案比較", expanded=False):
+    with st.expander("🔧 設計挑戰：升級 vs 並聯備援，哪種策略更划算？（課本圖 3.9）", expanded=False):
         st.markdown('''
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #0369a1;
                     border-radius:8px;padding:10px 16px;margin:0 0 14px 0;">
@@ -1382,40 +1594,216 @@ with tab5:
                 🎯 本實驗室教學目的
             </div>
             <div style="color:#334155;font-size:1.0rem;line-height:1.7;">
-                <b>學習目標：</b>比較「升級最弱單元」與「對最弱單元新增並聯備援」兩種提升策略的效益差異。<br>
-                <b>你會發現：</b>重複（並聯備援）通常比升級更有效，課本數字完整驗證此結論。
+                <b>情境：</b>原始串聯系統 R₁=0.90、R₂=0.80、R₃=0.95，系統可靠度 Rₛ = 0.684。<br>
+                <b>工程任務：</b>預算只夠改善「最弱單元 R₂」。拉動下方滑桿，觀察系統架構圖如何變化，哪種策略效果更好？
             </div>
         </div>
         ''', unsafe_allow_html=True)
 
-        Ra       = round(0.90*0.80*0.95, 4)
-        Rb       = round(0.90*0.95*0.95, 4)
-        Rc_sub   = round(1-(1-0.80)**2,  4)
-        Rc       = round(0.90*Rc_sub*0.95, 4)
+        R1_fix, R3_fix = 0.90, 0.95
+        Ra = round(R1_fix * 0.80 * R3_fix, 4)
 
-        df_plans = pd.DataFrame({
-            "方案":    ["(a) 原始串聯","(b) 升級單元 2（R₂→0.95）","(c) 重複單元 2（並聯備援）"],
-            "計算式":  ["0.90×0.80×0.95","0.90×0.95×0.95","0.90×[1−(1−0.80)²]×0.95"],
-            "系統 Rₛ": [Ra, Rb, Rc],
-            "提升量":  [0.0, round(Rb-Ra,4), round(Rc-Ra,4)],
-        })
-        st.dataframe(df_plans, use_container_width=True, hide_index=True)
+        col_sl1, col_sl2 = st.columns(2)
+        with col_sl1:
+            st.markdown("**① 升級策略：R₂ 升級至**")
+            R2_upgrade = st.slider("升級後的 R₂", 0.80, 1.00, 0.95, 0.01, key="w3_r2_upgrade",
+                                   format="%.2f", help="原始 R₂ = 0.80，往右拉代表升級品質")
+        with col_sl2:
+            st.markdown("**② 並聯備援：R₂ 共幾個並聯**")
+            n_redundant = st.slider("並聯單元數", 2, 4, 2, 1, key="w3_n_redundant",
+                                    help="2 = 原本1個 + 新增1個備援（R₂=0.80 不變）")
 
-        fig5c = go.Figure(go.Bar(
-            x=["(a) 原始串聯","(b) 升級單元 2","(c) 重複單元 2（備援）"],
-            y=[Ra, Rb, Rc],
-            marker_color=["#94a3b8","#3b82f6","#22c55e"],
-            text=[str(Ra), str(Rb), str(Rc)],
-            textposition="outside", textfont=dict(size=14),
-            hovertemplate="%{x}<br>Rₛ=%{y:.4f}<extra></extra>"
-        ))
-        set_chart_layout(fig5c, "三種設計方案系統可靠度比較（課本圖 3.9）", "設計方案", "系統可靠度 Rₛ")
-        fig5c.update_layout(height=420, yaxis=dict(range=[0, 1.0]),
-                            margin=dict(t=60, b=40, l=50, r=20))
-        st.plotly_chart(fig5c, use_container_width=True)
-        _card("#0369a1","#e0f2fe","#0c4a6e","📖 課本圖 3.9 三方案對照",
-              "(a) 0.684 ｜ (b) 升級 0.812（+0.128）｜ (c) 重複 0.821（+0.137）。"
-              "重複（並聯備援）比升級單元更有效，這是「多餘系統（Redundant System）」的工程價值。")
+        check_slider("w3_r2_upgrade",  "t5_design")
+        check_slider("w3_n_redundant", "t5_design")
+
+        Rb = round(R1_fix * R2_upgrade * R3_fix, 4)
+        R2_parallel = round(1 - (1 - 0.80)**n_redundant, 4)
+        Rc = round(R1_fix * R2_parallel * R3_fix, 4)
+
+        # ── SVG 架構圖：三種方案並排 ─────────────────────────────────
+        def _box_color(r):
+            if r >= 0.95: return "#16a34a"
+            if r >= 0.85: return "#2563eb"
+            if r >= 0.75: return "#d97706"
+            return "#dc2626"
+
+        def _rs_color(rs, baseline):
+            return "#16a34a" if rs > baseline + 0.001 else "#1e3a5f"
+
+        # ── 動態計算各色塊高度 ──────────────────────────────────────────
+        bw, bh = 64, 36          # 方塊尺寸
+        band_pad = 14            # 色塊上下 padding
+        band_gap = 16            # 色塊間距
+        box_gap  = 44            # 並聯方塊間距
+
+        h_a = bh + band_pad * 2                              # (a) 色塊高度
+        h_b = bh + band_pad * 2                              # (b) 色塊高度
+        # (c) 高度依並聯數動態算：n 個方塊 + 間距 + padding
+        h_c = n_redundant * bh + (n_redundant - 1) * (box_gap - bh) + band_pad * 2 + 10
+
+        y_a = 20                          # (a) 色塊起點
+        y_b = y_a + h_a + band_gap        # (b) 色塊起點
+        y_c = y_b + h_b + band_gap        # (c) 色塊起點
+        W   = 860
+        H   = y_c + h_c + 20             # SVG 總高度
+
+        # 各方案中心線 y
+        mid_a = y_a + band_pad + bh // 2
+        mid_b = y_b + band_pad + bh // 2
+
+        # x 座標
+        x_in = 30; x1 = 85; x2 = 245; x3 = 405; x_out = 490
+        lx   = 600   # 圖例 x
+
+        def block(x, y, label, r, highlight=False):
+            bc     = _box_color(r)
+            stroke = "#f59e0b" if highlight else bc
+            sw     = 3 if highlight else 2
+            return (
+                f'<rect x="{x}" y="{y}" width="{bw}" height="{bh}" rx="6" '
+                f'fill="white" stroke="{stroke}" stroke-width="{sw}"/>'
+                f'<text x="{x+bw//2}" y="{y+bh//2-6}" text-anchor="middle" '
+                f'font-size="13" font-weight="700" fill="{bc}">{label}</text>'
+                f'<text x="{x+bw//2}" y="{y+bh//2+10}" text-anchor="middle" '
+                f'font-size="12" fill="#374151">{r:.2f}</text>'
+            )
+
+        def hline(x1, x2, y):
+            return f'<line x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="#64748b" stroke-width="1.5"/>'
+
+        def rs_badge(band_x2, band_y, band_h, rs_val, baseline, delta=None):
+            """在色塊右上角畫 Rₛ badge（不會超出色塊）"""
+            tx = band_x2 - 6      # 右上角，右對齊
+            ty = band_y + 18      # 距頂端 18px
+            color = _rs_color(rs_val, baseline)
+            parts = [
+                f'<text x="{tx}" y="{ty}" text-anchor="end" '
+                f'font-size="13" font-weight="800" fill="{color}">Rₛ = {rs_val:.3f}</text>'
+            ]
+            if delta is not None:
+                parts.append(
+                    f'<text x="{tx}" y="{ty+16}" text-anchor="end" '
+                    f'font-size="11" fill="#6b7280">+{delta:.3f}</text>'
+                )
+            return "".join(parts)
+
+        svg_parts = [
+            f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" '
+            f'style="background:white;border-radius:12px;border:1px solid #e2e8f0;width:100%;">',
+            # ── 背景色塊（寬度到 x_out + margin）──
+            f'<rect x="10" y="{y_a}" width="560" height="{h_a}" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>',
+            f'<rect x="10" y="{y_b}" width="560" height="{h_b}" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>',
+            f'<rect x="10" y="{y_c}" width="560" height="{h_c}" rx="8" fill="#f0fdf4" stroke="#86efac"/>',
+            # ── 標籤（嵌在色塊內左上角）──
+            f'<text x="20" y="{y_a+17}" font-size="13" font-weight="700" fill="#475569">(a) 原始串聯</text>',
+            f'<text x="20" y="{y_b+17}" font-size="13" font-weight="700" fill="#1d4ed8">(b) 升級單元 2</text>',
+            f'<text x="20" y="{y_c+17}" font-size="13" font-weight="700" fill="#15803d">(c) 並聯備援</text>',
+        ]
+
+        # ── (a) 原始串聯 ──────────────────────────────────────────────
+        svg_parts += [
+            hline(x_in, x1, mid_a),
+            block(x1, mid_a - bh//2, "1", 0.90),
+            hline(x1+bw, x2, mid_a),
+            block(x2, mid_a - bh//2, "2", 0.80, highlight=True),
+            hline(x2+bw, x3, mid_a),
+            block(x3, mid_a - bh//2, "3", 0.95),
+            hline(x3+bw, x_out, mid_a),
+            rs_badge(570, y_a, h_a, Ra, Ra),
+        ]
+
+        # ── (b) 升級策略 ──────────────────────────────────────────────
+        svg_parts += [
+            hline(x_in, x1, mid_b),
+            block(x1, mid_b - bh//2, "1", 0.90),
+            hline(x1+bw, x2, mid_b),
+            block(x2, mid_b - bh//2, "2", R2_upgrade, highlight=True),
+            hline(x2+bw, x3, mid_b),
+            block(x3, mid_b - bh//2, "3", 0.95),
+            hline(x3+bw, x_out, mid_b),
+            rs_badge(570, y_b, h_b, Rb, Ra, Rb - Ra),
+        ]
+
+        # ── (c) 並聯備援 ──────────────────────────────────────────────
+        par_y_start = y_c + band_pad + 8
+        par_ys      = [par_y_start + i * box_gap for i in range(n_redundant)]
+        par_cy      = (par_ys[0] + par_ys[-1]) // 2 + bh // 2
+        x_par_in    = x2 - 20
+        x_par_out   = x2 + bw + 20
+
+        svg_parts += [
+            hline(x_in, x1, par_cy),
+            block(x1, par_cy - bh//2, "1", 0.90),
+            hline(x1+bw, x_par_in, par_cy),
+            f'<line x1="{x_par_in}" y1="{par_ys[0]+bh//2}" x2="{x_par_in}" y2="{par_ys[-1]+bh//2}" stroke="#64748b" stroke-width="1.5"/>',
+            f'<line x1="{x_par_out}" y1="{par_ys[0]+bh//2}" x2="{x_par_out}" y2="{par_ys[-1]+bh//2}" stroke="#64748b" stroke-width="1.5"/>',
+        ]
+        for i, py in enumerate(par_ys):
+            lbl = "2" if i == 0 else "2'"
+            svg_parts += [
+                hline(x_par_in, x2, py + bh//2),
+                block(x2, py, lbl, 0.80, highlight=True),
+                hline(x2+bw, x_par_out, py + bh//2),
+            ]
+        svg_parts += [
+            hline(x_par_out, x3, par_cy),
+            block(x3, par_cy - bh//2, "3", 0.95),
+            hline(x3+bw, x_out, par_cy),
+            rs_badge(570, y_c, h_c, Rc, Ra, Rc - Ra),
+        ]
+
+        # ── 圖例 ──────────────────────────────────────────────────────
+        leg_y = y_a
+        svg_parts += [
+            f'<text x="{lx}" y="{leg_y+14}" font-size="13" font-weight="700" fill="#1e3a5f">方塊顏色 = 可靠度</text>',
+            f'<rect x="{lx}" y="{leg_y+22}" width="14" height="14" fill="#16a34a" rx="3"/>'
+            f'<text x="{lx+20}" y="{leg_y+34}" font-size="12" fill="#374151">≥ 0.95</text>',
+            f'<rect x="{lx}" y="{leg_y+44}" width="14" height="14" fill="#2563eb" rx="3"/>'
+            f'<text x="{lx+20}" y="{leg_y+56}" font-size="12" fill="#374151">≥ 0.85</text>',
+            f'<rect x="{lx}" y="{leg_y+66}" width="14" height="14" fill="#d97706" rx="3"/>'
+            f'<text x="{lx+20}" y="{leg_y+78}" font-size="12" fill="#374151">≥ 0.75</text>',
+            f'<rect x="{lx}" y="{leg_y+88}" width="14" height="14" fill="#dc2626" rx="3"/>'
+            f'<text x="{lx+20}" y="{leg_y+100}" font-size="12" fill="#374151">&lt; 0.75</text>',
+            f'<rect x="{lx}" y="{leg_y+114}" width="14" height="14" fill="white" stroke="#f59e0b" stroke-width="3" rx="3"/>',
+            f'<text x="{lx+20}" y="{leg_y+126}" font-size="12" fill="#374151">= 被改善的單元</text>',
+            # Rₛ 比較
+            f'<text x="{lx}" y="{leg_y+155}" font-size="13" font-weight="700" fill="#1e3a5f">Rₛ 比較</text>',
+            f'<text x="{lx}" y="{leg_y+173}" font-size="13" fill="#475569">(a) {Ra:.3f}</text>',
+            f'<text x="{lx}" y="{leg_y+191}" font-size="13" fill="{_rs_color(Rb,Ra)}" font-weight="700">(b) {Rb:.3f}</text>',
+            f'<text x="{lx}" y="{leg_y+209}" font-size="13" fill="{_rs_color(Rc,Ra)}" font-weight="700">(c) {Rc:.3f}</text>',
+        ]
+
+        # 勝者標示
+        winner = "b" if Rb > Rc else ("c" if Rc > Rb else "tie")
+        if winner == "b":
+            svg_parts.append(f'<text x="{lx}" y="{leg_y+229}" font-size="12" fill="#1d4ed8" font-weight="700">▲ 升級策略較優</text>')
+        elif winner == "c":
+            svg_parts.append(f'<text x="{lx}" y="{leg_y+229}" font-size="12" fill="#15803d" font-weight="700">▲ 並聯備援較優</text>')
+        else:
+            svg_parts.append(f'<text x="{lx}" y="{leg_y+229}" font-size="12" fill="#7c3aed" font-weight="700">= 效果相同</text>')
+
+        svg_parts.append("</svg>")
+        st.markdown("".join(svg_parts), unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        col_ra, col_rb, col_rc = st.columns(3)
+        with col_ra: st.metric("(a) 原始 Rₛ",           f"{Ra:.4f}")
+        with col_rb: st.metric(f"(b) 升級 R₂→{R2_upgrade:.2f}", f"{Rb:.4f}",
+                               delta=f"+{Rb-Ra:.4f}", delta_color="normal")
+        with col_rc: st.metric(f"(c) 並聯 {n_redundant} 個 R₂",  f"{Rc:.4f}",
+                               delta=f"+{Rc-Ra:.4f}", delta_color="normal")
+
+        if Rc > Rb:
+            _card("#22c55e","#f0fdf4","#166534","💡 並聯備援效果更好！",
+                  f"並聯 {n_redundant} 個（Rₛ = {Rc:.4f}）> 升級至 {R2_upgrade:.2f}（Rₛ = {Rb:.4f}）。<br>"
+                  "不需要提升每個元件品質，只要增加備援即可大幅提升系統可靠度——這是「多餘系統（Redundant System）」的工程價值。")
+        elif Rb > Rc:
+            _card("#3b82f6","#eff6ff","#1e40af","💡 升級策略效果更好！",
+                  f"升級至 {R2_upgrade:.2f}（Rₛ = {Rb:.4f}）> 並聯 {n_redundant} 個（Rₛ = {Rc:.4f}）。<br>"
+                  "試試看：把備援數增加到 3 個，結果會如何改變？")
+        else:
+            _card("#7c3aed","#f5f3ff","#4c1d95","⚖️ 兩種策略效果相同",
+                  f"升級與並聯備援的系統可靠度均為 {Rb:.4f}，效益相當。")
 
     # ── 隨堂小測驗 tab5 ─────────────────────────────────────────────────
     st.markdown('''
