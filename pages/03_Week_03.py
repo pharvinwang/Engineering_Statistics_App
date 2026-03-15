@@ -1106,28 +1106,210 @@ with tab4:
                     paths_chip.append({"路徑": s1+"\u2081"+s2+"\u2082"+s3+"\u2083",
                                        "機率": round(p1*p2*p3, 6)})
 
-        df_chip = pd.DataFrame(paths_chip)
-        pGGG = round((chip_G/100)*((chip_G-1)/99)*((chip_G-2)/98), 6)
-        pGGD = round((chip_G/100)*((chip_G-1)/99)*(chip_D/98), 6)
-        total_chip = round(sum(r["機率"] for r in paths_chip), 4)
+        # ── 計算 8 條路徑 ─────────────────────────────────────────────
+        pGGG = round((chip_G/100)*((chip_G-1)/99)*((chip_G-2)/98), 5)
+        pGGD = round((chip_G/100)*((chip_G-1)/99)*(chip_D/98), 5)
+        pGDG = round((chip_G/100)*(chip_D/99)*((chip_G-1)/98), 5)
+        pGDD = round((chip_G/100)*(chip_D/99)*((chip_D-1)/98), 5)
+        pDGG = round((chip_D/100)*((chip_G)/99)*((chip_G-1)/98), 5)
+        pDGD = round((chip_D/100)*((chip_G)/99)*(chip_D-1+1-1)/98, 5)  # D1→G2→D3
+        # 精確計算所有8條
+        def _p3(s1,s2,s3,G,D):
+            g,d = G,D
+            p1 = g/100 if s1=="G" else d/100
+            if s1=="G": g-=1
+            else: d-=1
+            p2 = g/99 if s2=="G" else d/99
+            if s2=="G": g-=1
+            else: d-=1
+            p3 = g/98 if s3=="G" else d/98
+            return round(p1*p2*p3, 5)
+        paths8 = {
+            "GGG": _p3("G","G","G",chip_G,chip_D),
+            "GGD": _p3("G","G","D",chip_G,chip_D),
+            "GDG": _p3("G","D","G",chip_G,chip_D),
+            "GDD": _p3("G","D","D",chip_G,chip_D),
+            "DGG": _p3("D","G","G",chip_G,chip_D),
+            "DGD": _p3("D","G","D",chip_G,chip_D),
+            "DDG": _p3("D","D","G",chip_G,chip_D),
+            "DDD": _p3("D","D","D",chip_G,chip_D),
+        }
+        total_chip = round(sum(paths8.values()), 4)
+        pGGG = paths8["GGG"]
 
-        col_c1, col_c2 = st.columns([1, 1])
-        with col_c1:
-            st.dataframe(df_chip, use_container_width=True, hide_index=True)
-        with col_c2:
-            row1_a, row1_b = st.columns(2)
-            row2_a, row2_b = st.columns(2)
-            with row1_a: st.metric("P(G₁G₂G₃) 全良品",  str(pGGG))
-            with row1_b: st.metric("P(G₁G₂D₃) 最後不良", str(pGGD))
-            with row2_a: st.metric("P(至少 1 個不良)",    str(round(1-pGGG, 5)))
-            with row2_b: st.metric("8 路徑總和",           str(total_chip))
-        # 完備性卡片全寬顯示，對齊左側底部
+        # ── 機率樹 SVG（仿課本圖 3.5）─────────────────────────────────
+        # 版面：左→右 4 欄：第1次/第2次/第3次/聯合機率+樣本空間
+        # 顏色：G=藍色系, D=紅色系
+        CG = "#2563eb"   # 良品色
+        CD = "#dc2626"   # 不良品色
+        BG_G = "#eff6ff" # 良品背景
+        BG_D = "#fef2f2" # 不良品背景
+
+        # 各層 x 座標（節點中心）
+        # 層0(根) → 層1(第1次) → 層2(第2次) → 層3(第3次葉) → 標籤
+        x0   = 30    # 根節點
+        x1   = 120   # 第1次分枝節點
+        x2   = 270   # 第2次分枝節點
+        x3   = 420   # 第3次分枝（葉）
+        x_jp = 505   # 聯合機率文字
+        x_sp = 620   # 樣本空間文字
+        W    = 760
+        # 8個葉節點 y 座標（等距）
+        leaf_h = 68
+        leaf_ys = [44 + i * leaf_h for i in range(8)]   # 44,112,180,...,532
+        # 第2次節點：2個葉一組取中心
+        l2_ys = [(leaf_ys[0]+leaf_ys[1])//2,   # GG→ y中
+                 (leaf_ys[2]+leaf_ys[3])//2,   # GD→ y中
+                 (leaf_ys[4]+leaf_ys[5])//2,   # DG→ y中
+                 (leaf_ys[6]+leaf_ys[7])//2]   # DD→ y中
+        # 第1次節點：4個葉一組取中心
+        l1_G = (leaf_ys[0]+leaf_ys[3])//2  # G1 節點
+        l1_D = (leaf_ys[4]+leaf_ys[7])//2  # D1 節點
+        # 根節點
+        root_y = (leaf_ys[0]+leaf_ys[7])//2
+
+        H = leaf_ys[-1] + 50
+
+        def node_rect(x, y, label, color, bg, w=38, h=22):
+            """圓角矩形節點"""
+            return (
+                f'<rect x="{x-w//2}" y="{y-h//2}" width="{w}" height="{h}" rx="5" ' +
+                f'fill="{bg}" stroke="{color}" stroke-width="1.8"/>' +
+                f'<text x="{x}" y="{y+5}" text-anchor="middle" font-size="12" ' +
+                f'font-weight="700" fill="{color}">{label}</text>'
+            )
+
+        def branch_line(x1c, y1c, x2c, y2c, color):
+            return f'<line x1="{x1c}" y1="{y1c}" x2="{x2c}" y2="{y2c}" stroke="{color}" stroke-width="1.4" stroke-opacity="0.7"/>'
+
+        def frac_label(x, y, num, den, color):
+            """在線段中點顯示分數標籤"""
+            return (
+                f'<text x="{x}" y="{y-3}" text-anchor="middle" font-size="10" fill="{color}">{num}</text>' +
+                f'<line x1="{x-10}" y1="{y+1}" x2="{x+10}" y2="{y+1}" stroke="{color}" stroke-width="0.8"/>' +
+                f'<text x="{x}" y="{y+12}" text-anchor="middle" font-size="10" fill="{color}">{den}</text>'
+            )
+
+        parts = [
+            f'<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" ',
+            f'style="width:100%;max-height:500px;border-radius:12px;border:1px solid #e2e8f0;background:#fafafa;font-family:sans-serif;">',
+            # 欄標題
+            f'<text x="{x1}" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">第 1 次抽樣</text>',
+            f'<text x="{x2}" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">第 2 次抽樣</text>',
+            f'<text x="{x3}" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">第 3 次抽樣</text>',
+            f'<text x="{x_jp+15}" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">聯合機率</text>',
+            f'<text x="{x_sp+20}" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">樣本空間</text>',
+        ]
+
+        # 定義樹結構：每條路徑 (s1,s2,s3)
+        tree = [
+            ("G","G","G"),("G","G","D"),("G","D","G"),("G","D","D"),
+            ("D","G","G"),("D","G","D"),("D","D","G"),("D","D","D"),
+        ]
+        key_order = ["GGG","GGD","GDG","GDD","DGG","DGD","DDG","DDD"]
+
+        # 分數分子（依 G, chip_G, chip_D）
+        def branch_nums(s1,s2,s3,G,D):
+            """回傳各枝分子分母"""
+            g,d = G,D
+            n1 = g if s1=="G" else d; den1 = 100
+            if s1=="G": g-=1
+            else: d-=1
+            n2 = g if s2=="G" else d; den2 = 99
+            if s2=="G": g-=1
+            else: d-=1
+            n3 = g if s3=="G" else d; den3 = 98
+            return (n1,den1,n2,den2,n3,den3)
+
+        # 根節點
+        parts.append(node_rect(x0, root_y, "start", "#475569", "#f1f5f9", 44, 22))
+
+        # 第1次枝：G1, D1
+        for s1, l1y in [("G",l1_G),("D",l1_D)]:
+            c1 = CG if s1=="G" else CD
+            bg1 = BG_G if s1=="G" else BG_D
+            lbl1 = f"{s1}₁"
+            parts.append(branch_line(x0+22, root_y, x1-19, l1y, c1))
+            # 分數在線段中點
+            mx = (x0+22+x1-19)//2
+            my = (root_y+l1y)//2
+            n1 = chip_G if s1=="G" else chip_D
+            parts.append(frac_label(mx, my, n1, 100, c1))
+            parts.append(node_rect(x1, l1y, lbl1, c1, bg1))
+
+            # 第2次枝
+            children2 = [(s1,"G"),(s1,"D")]
+            for s2 in ["G","D"]:
+                idx2 = 0 if s2=="G" else 1
+                l2y_idx = (0 if s1=="G" else 2) + idx2
+                l2y = l2_ys[l2y_idx]
+                c2 = CG if s2=="G" else CD
+                bg2 = BG_G if s2=="G" else BG_D
+                lbl2 = f"{s2}₂"
+                parts.append(branch_line(x1+19, l1y, x2-19, l2y, c2))
+                mx2 = (x1+19+x2-19)//2
+                my2 = (l1y+l2y)//2
+                n1_,_1,n2,_2,_,_ = branch_nums(s1,s2,"G",chip_G,chip_D)
+                parts.append(frac_label(mx2, my2, n2, 99, c2))
+                parts.append(node_rect(x2, l2y, lbl2, c2, bg2))
+
+                # 第3次枝（葉節點）
+                for s3 in ["G","D"]:
+                    leaf_idx = (0 if s1=="G" else 4) + (0 if s2=="G" else 2) + (0 if s3=="G" else 1)
+                    ly = leaf_ys[leaf_idx]
+                    c3 = CG if s3=="G" else CD
+                    bg3 = BG_G if s3=="G" else BG_D
+                    lbl3 = f"{s3}₃"
+                    parts.append(branch_line(x2+19, l2y, x3-19, ly, c3))
+                    mx3 = (x2+19+x3-19)//2
+                    my3 = (l2y+ly)//2
+                    n1_,_1,n2_,_2,n3,_3 = branch_nums(s1,s2,s3,chip_G,chip_D)
+                    parts.append(frac_label(mx3, my3, n3, 98, c3))
+                    parts.append(node_rect(x3, ly, lbl3, c3, bg3))
+
+                    # 聯合機率
+                    path_key = s1+s2+s3
+                    jp = paths8[path_key]
+                    is_best = (path_key == "GGG")
+                    jp_color = "#166534" if is_best else ("#374151" if s3=="G" else "#991b1b")
+                    jp_weight = "800" if is_best else "400"
+                    parts.append(
+                        f'<text x="{x_jp}" y="{ly+5}" font-size="11" font-weight="{jp_weight}" fill="{jp_color}">{jp}</text>'
+                    )
+
+                    # 樣本空間標籤
+                    def sub_map(c): return {"G":"G","D":"D"}[c]
+                    sp_lbl = f"{s1}₁{s2}₂{s3}₃"
+                    sp_color = CG if s3=="G" else CD
+                    parts.append(
+                        f'<text x="{x_sp}" y="{ly+5}" font-size="11" fill="{sp_color}">{sp_lbl}</text>'
+                    )
+
+        # 底部總和驗證列
+        total_y = H - 20
+        tc = "#166534" if abs(total_chip-1.0)<0.002 else "#991b1b"
+        parts.append(
+            f'<rect x="4" y="{total_y-16}" width="{W-8}" height="24" rx="5" fill="#f0fdf4"/>' +
+            f'<text x="{W//2}" y="{total_y}" text-anchor="middle" font-size="11" font-weight="700" fill="{tc}">' +
+            f'8 條路徑機率總和 = {total_chip}　（完備性驗證）</text>'
+        )
+        parts.append("</svg>")
+        st.markdown("".join(parts), unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # metrics 列
+        col_m1,col_m2,col_m3,col_m4 = st.columns(4)
+        with col_m1: st.metric("P(G₁G₂G₃) 全良品",   str(paths8["GGG"]))
+        with col_m2: st.metric("P(G₁G₂D₃) 最後不良", str(paths8["GGD"]))
+        with col_m3: st.metric("P(至少 1 個不良)",     str(round(1-paths8["GGG"],5)))
+        with col_m4: st.metric("8 路徑總和",            str(total_chip))
+
         if abs(total_chip - 1.0) < 0.002:
             _card("#22c55e","#f0fdf4","#166534","✅ 完備性通過","8 條路徑機率總和 = 1.000")
 
         if chip_G == 90:
             _card("#0369a1","#e0f2fe","#0c4a6e","📖 課本例題 3.9 對照（G=90, D=10）",
-                  "P(G₁G₂G₃) = 90/100 × 89/99 × 88/98 ≈ 0.72730；"
+                  "P(G₁G₂G₃) = 90/100 × 89/99 × 88/98 ≈ 0.72653；"
                   "P(G₁G₂D₃) ≈ 0.08256（課本第 2 個簡單事件）")
 
     # ── 隨堂小測驗 tab4 ─────────────────────────────────────────────────
