@@ -84,27 +84,48 @@ def render_ia_section(cfg: dict):
         ph = st.empty()   # 倒數訊息佔位
 
         # 準備寫入資料
+        # ── ia_record 格式與 Week 01/02 完全一致 ──────────────────
+        # 格式：「7% (1/14) | t1_prob:V | t1_add:- | ...」
+        # 00_成績查詢.py 的 regex r'\((\d+)/(\d+)\)' 才能正確解析出 done/total
+        def _make_detail(keys, prefix):
+            parts = [k + (":" + ("V" if st.session_state.get(prefix + k, False) else "-"))
+                     for k in keys]
+            return " | ".join(parts)
+
         cur_pct    = int(cur_done / total_count * 100) if total_count else 0
-        cur_detail = ",".join(k for k in track_keys
-                              if st.session_state.get(track_prefix + k, False))
+        cur_detail_raw = _make_detail(track_keys, track_prefix)
+        cur_record = f"{cur_pct}% ({cur_done}/{total_count}) | {cur_detail_raw}"
+
         try:
             saved = get_saved_progress(ia_id, sheet_name)
             if saved and saved["pct"] > cur_pct:
-                for _k in saved.get("detail", "").split(","):
-                    _k = _k.strip()
-                    if _k in track_keys:
-                        st.session_state[track_prefix + _k] = True
+                # 解析舊格式（"k:V | k2:- | ..." 或舊逗號格式）
+                saved_detail = saved.get("detail", "")
+                if ":" in saved_detail:
+                    for part in saved_detail.split("|"):
+                        part = part.strip()
+                        if ":" in part:
+                            _k, _v = part.split(":", 1)
+                            _k = _k.strip()
+                            if _k in track_keys and _v.strip() == "V":
+                                st.session_state[track_prefix + _k] = True
+                else:
+                    # 舊逗號格式相容
+                    for _k in saved_detail.split(","):
+                        _k = _k.strip()
+                        if _k in track_keys:
+                            st.session_state[track_prefix + _k] = True
                 cur_done   = sum(1 for k in track_keys
                                  if st.session_state.get(track_prefix + k, False))
                 cur_pct    = int(cur_done / total_count * 100)
-                cur_detail = ",".join(k for k in track_keys
-                                      if st.session_state.get(track_prefix + k, False))
+                cur_detail_raw = _make_detail(track_keys, track_prefix)
+                cur_record = f"{cur_pct}% ({cur_done}/{total_count}) | {cur_detail_raw}"
         except Exception:
             pass
 
         # ── 第 1 次寫入 ─────────────────────────────────────────────
         ok = save_score(student_idx, ia_id, ia_name,
-                        sheet_name, cur_detail, cur_pct)
+                        sheet_name, cur_record, cur_pct)
         if ok:
             _countdown(ph, _COOLDOWN, "系統寫入成功，防止重複送出")
             st.session_state[cooling_key] = False
@@ -116,7 +137,7 @@ def render_ia_section(cfg: dict):
         # ── 第 1 次失敗 → 倒數後自動第 2 次 ────────────────────────
         _countdown(ph, _COOLDOWN, "寫入失敗，目前自動第 1 次嘗試寫入")
         ok = save_score(student_idx, ia_id, ia_name,
-                        sheet_name, cur_detail, cur_pct)
+                        sheet_name, cur_record, cur_pct)
         if ok:
             _countdown(ph, _COOLDOWN, "系統寫入成功，防止重複送出")
             st.session_state[cooling_key] = False
@@ -128,7 +149,7 @@ def render_ia_section(cfg: dict):
         # ── 第 2 次失敗 → 倒數後自動第 3 次 ────────────────────────
         _countdown(ph, _COOLDOWN, "寫入失敗，目前自動第 2 次嘗試寫入")
         ok = save_score(student_idx, ia_id, ia_name,
-                        sheet_name, cur_detail, cur_pct)
+                        sheet_name, cur_record, cur_pct)
         if ok:
             st.session_state[cooling_key] = False
             st.session_state[submitted_key] = {
