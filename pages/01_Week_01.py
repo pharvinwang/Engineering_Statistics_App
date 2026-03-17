@@ -864,6 +864,50 @@ else:
                                         <div style="background:#fffbeb;padding:13px 18px;color:#92400e;font-size:1.0rem;line-height:1.6;">請回顧本週各節的概念說明與互動實驗，特別是不確定的題目——理解比死背更重要！</div>
                                     </div>
                                     ''', unsafe_allow_html=True)
+
+                                # ── 逐題對錯與解析 ──────────────────────────────────────
+                                _ANSWERS_W1 = {
+                                    "Q1": ("比率資料 (Ratio)",
+                                           "§1.2：承載重量有真正的零點（0 噸 = 無重量），且可做倍數比較，屬比率資料。"),
+                                    "Q2": ("具有破壞性特質的觀測 (Destructive Nature)",
+                                           "§1.4：鑽心試驗會破壞構件本身，無法對所有構件普查，故須抽樣。"),
+                                    "Q3": ("模式建立與預測 (迴歸分析)",
+                                           "§1.6：由應變 E 透過線性方程式 S=−5000+10⁷E 預測應力 S，即迴歸分析。"),
+                                    "Q4": ("演繹統計 (Deductive Statistics)",
+                                           "§1.3：已知母體特性，推算樣本行為 → 演繹統計（反向為歸納/推論統計）。"),
+                                }
+                                _student_ans_w1 = {"Q1": q1, "Q2": q2, "Q3": q3, "Q4": q4}
+                                _rows_w1 = ""
+                                for _qn, (_correct, _expl) in _ANSWERS_W1.items():
+                                    _stu = _student_ans_w1[_qn]
+                                    _ok  = (_stu == _correct)
+                                    _icon   = "✅" if _ok else "❌"
+                                    _hbg    = "#15803d" if _ok else "#dc2626"
+                                    _bbg    = "#f0fdf4" if _ok else "#fef2f2"
+                                    _tc2    = "#166534" if _ok else "#991b1b"
+                                    _status = "答對" if _ok else "答錯"
+                                    _rows_w1 += (
+                                        f'<div style="border-radius:10px;overflow:hidden;'
+                                        f'border:1px solid #e2e8f0;margin:8px 0;">'
+                                        f'<div style="background:{_hbg};padding:8px 16px;">'
+                                        f'<span style="color:white;font-weight:700;">'
+                                        f'{_icon} {_qn}　{_status}</span></div>'
+                                        f'<div style="background:{_bbg};padding:12px 16px;'
+                                        f'color:{_tc2};font-size:0.97rem;line-height:1.7;">'
+                                        f'<b>您的答案：</b>{_stu}<br>'
+                                        + ('' if _ok else f'<b>正確答案：</b>{_correct}<br>')
+                                        + f'<b>解析：</b>{_expl}'
+                                        f'</div></div>'
+                                    )
+                                st.markdown(
+                                    '<div style="background:#1e3a5f;border-radius:12px;'
+                                    'padding:10px 18px;margin:14px 0 6px 0;">'
+                                    '<span style="color:white;font-weight:800;font-size:1.05rem;">'
+                                    '📋 本次作答詳細解析</span></div>'
+                                    + _rows_w1,
+                                    unsafe_allow_html=True
+                                )
+                                # ────────────────────────────────────────────────────────
             else:
                 st.markdown('''
                 <div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e2e8f0;margin:8px 0;">

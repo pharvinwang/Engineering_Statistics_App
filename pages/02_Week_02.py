@@ -2069,6 +2069,50 @@ else:
                         else:
                             _card("#f59e0b", "#fffbeb", "#92400e", "📖 繼續加油！",
                                   "請回顧本週各節的概念說明與互動實驗，理解比死背更重要！")
+
+                        # ── 逐題對錯與解析 ────────────────────────────────────────
+                        _ANSWERS_W2 = {
+                            "Q1": ("B. (組下限 + 組上限) / 2",
+                                   "§2.1：組中點 = (組下限 + 組上限) ÷ 2，代表該組資料的中間代表值。"),
+                            "Q2": ("B. 眾數 < 中位數 < 均值",
+                                   "§2.2：右偏（正偏）時，均值被右側極端值拉高，順序為眾數 < 中位數 < 均值。"),
+                            "Q3": ("D. 乙廠（因為 CV 較小）",
+                                   "§2.3：CV（變異係數）= s/X̄。甲廠 CV=3/30=10%，乙廠 CV=4/50=8%。CV 越小代表相對變異越小，故乙廠較穩定。"),
+                            "Q4": ("C. 0.16",
+                                   "§2.4：樣本比例 P = 瑕疵數/總數 = 8/50 = 0.16。注意 B 選項「8%」= 0.08 是錯的，0.08 ≠ 8/50。"),
+                        }
+                        _student_ans_w2 = {"Q1": q_1, "Q2": q_2, "Q3": q_3, "Q4": q_4}
+                        _rows_w2 = ""
+                        for _qn, (_correct, _expl) in _ANSWERS_W2.items():
+                            _stu = _student_ans_w2[_qn]
+                            _ok  = (_stu == _correct)
+                            _icon   = "✅" if _ok else "❌"
+                            _hbg    = "#15803d" if _ok else "#dc2626"
+                            _bbg    = "#f0fdf4" if _ok else "#fef2f2"
+                            _tc2    = "#166534" if _ok else "#991b1b"
+                            _status = "答對" if _ok else "答錯"
+                            _rows_w2 += (
+                                f'<div style="border-radius:10px;overflow:hidden;'
+                                f'border:1px solid #e2e8f0;margin:8px 0;">'
+                                f'<div style="background:{_hbg};padding:8px 16px;">'
+                                f'<span style="color:white;font-weight:700;">'
+                                f'{_icon} {_qn}　{_status}</span></div>'
+                                f'<div style="background:{_bbg};padding:12px 16px;'
+                                f'color:{_tc2};font-size:0.97rem;line-height:1.7;">'
+                                f'<b>您的答案：</b>{_stu}<br>'
+                                + ('' if _ok else f'<b>正確答案：</b>{_correct}<br>')
+                                + f'<b>解析：</b>{_expl}'
+                                f'</div></div>'
+                            )
+                        st.markdown(
+                            '<div style="background:#1e3a5f;border-radius:12px;'
+                            'padding:10px 18px;margin:14px 0 6px 0;">'
+                            '<span style="color:white;font-weight:800;font-size:1.05rem;">'
+                            '📋 本次作答詳細解析</span></div>'
+                            + _rows_w2,
+                            unsafe_allow_html=True
+                        )
+                        # ──────────────────────────────────────────────────────────
             else:
                 _card("#f59e0b", "#fffbeb", "#92400e", "⚠️ 資料不完整",
                       "請完整填寫學號、姓名與驗證碼再送出表單。")

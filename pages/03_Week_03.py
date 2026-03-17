@@ -2173,6 +2173,50 @@ else:
                         else:
                             _card("#f59e0b","#fffbeb","#92400e","📖 繼續加油！",
                                   "請回顧本週各節的概念說明與互動實驗，機率的邏輯需要多練習！")
+
+                        # ── 逐題對錯與解析 ────────────────────────────────────────
+                        _ANSWERS_W3 = {
+                            "Q1": ("A. 42/50 = 0.84",
+                                   "§3.1：P(合格) = 合格數/總數 = 42/50 = 0.84，基本機率定義。"),
+                            "Q2": ("B. 0.70",
+                                   "§3.2：加法通式 P(A∪B) = P(A)+P(B)−P(A∩B) = 0.5+0.4−0.2 = 0.70。"),
+                            "Q3": ("A. P(A|B)=0.30，統計獨立",
+                                   "§3.3：P(A|B) = P(A∩B)/P(B) = 0.12/0.4 = 0.30。因 P(A|B)=P(A)=0.30，故 A 與 B 統計獨立。"),
+                            "Q4": ("C. 0.821",
+                                   "§3.5：單元2升級後並聯可靠度 R₂' = 1−(1−0.80)² = 0.96。整體串聯 = 0.90×0.96×0.95 ≈ 0.821。"),
+                        }
+                        _student_ans_w3 = {"Q1": q1f, "Q2": q2f, "Q3": q3f, "Q4": q4f}
+                        _rows_w3 = ""
+                        for _qn, (_correct, _expl) in _ANSWERS_W3.items():
+                            _stu = _student_ans_w3[_qn]
+                            _ok  = (_stu == _correct)
+                            _icon   = "✅" if _ok else "❌"
+                            _hbg    = "#15803d" if _ok else "#dc2626"
+                            _bbg    = "#f0fdf4" if _ok else "#fef2f2"
+                            _tc2    = "#166534" if _ok else "#991b1b"
+                            _status = "答對" if _ok else "答錯"
+                            _rows_w3 += (
+                                f'<div style="border-radius:10px;overflow:hidden;'
+                                f'border:1px solid #e2e8f0;margin:8px 0;">'
+                                f'<div style="background:{_hbg};padding:8px 16px;">'
+                                f'<span style="color:white;font-weight:700;">'
+                                f'{_icon} {_qn}　{_status}</span></div>'
+                                f'<div style="background:{_bbg};padding:12px 16px;'
+                                f'color:{_tc2};font-size:0.97rem;line-height:1.7;">'
+                                f'<b>您的答案：</b>{_stu}<br>'
+                                + ('' if _ok else f'<b>正確答案：</b>{_correct}<br>')
+                                + f'<b>解析：</b>{_expl}'
+                                f'</div></div>'
+                            )
+                        st.markdown(
+                            '<div style="background:#1e3a5f;border-radius:12px;'
+                            'padding:10px 18px;margin:14px 0 6px 0;">'
+                            '<span style="color:white;font-weight:800;font-size:1.05rem;">'
+                            '📋 本次作答詳細解析</span></div>'
+                            + _rows_w3,
+                            unsafe_allow_html=True
+                        )
+                        # ──────────────────────────────────────────────────────────
             else:
                 _card("#f59e0b","#fffbeb","#92400e","⚠️ 資料不完整",
                       "請完整填寫學號、姓名與驗證碼再送出表單。")
