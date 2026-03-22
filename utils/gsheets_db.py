@@ -105,14 +105,16 @@ _SPREADSHEET_ID = SPREADSHEET_ID
 @st.cache_resource
 def _get_spreadsheet():
     """
-    全伺服器共用的 spreadsheet 物件。
-    避免每次 save_score 都呼叫 open_by_key()。
+    ★ 改用 @st.cache_resource（不嘗試 pickle 序列化）。
+    gspread Spreadsheet 物件無法被 @st.cache_data 序列化，
+    序列化失敗會讓函式靜默回傳 None，造成後續所有 worksheet() 呼叫失敗。
+    @st.cache_resource 直接快取物件參照，適合 gspread / DB connection 等不可序列化物件。
     """
     return _get_shared_client().open_by_key(SPREADSHEET_ID)
 
 
 # ══════════════════════════════════════════════════════════════════════
-# 密碼讀取（維持 cache_data）
+# 密碼讀取（雙層快取）
 # ══════════════════════════════════════════════════════════════════════
 @st.cache_data(ttl=3600)
 def get_weekly_password(week_name):
@@ -127,6 +129,21 @@ def get_weekly_password(week_name):
     except Exception as e:
         print(f"讀取密碼發生錯誤: {e}")
         return None
+
+
+def get_weekly_password_safe(week_name: str):
+    """
+    雙層快取版本，解決 55 人同時載入頁面觸發 API 的問題：
+    1. session_state：同一 session 內完全免 API
+    2. cache_data：跨 session 共用，1小時內 server 只打一次 API
+    在各週 .py 改用此函式取代 get_weekly_password()
+    """
+    ss_key = f"_pwd_{week_name}"
+    if not st.session_state.get(ss_key):
+        pwd = get_weekly_password(week_name)
+        if pwd:
+            st.session_state[ss_key] = pwd
+    return st.session_state.get(ss_key)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -291,10 +308,7 @@ def save_score(student_idx, student_id, name, week, answer, score):
     MAX_RETRIES = 6
     tw_tz = pytz.timezone('Asia/Taipei')
 
-    # ── 【雪崩防護】送出前隨機延遲 0~3 秒 ──────────────────────────
-    # 55人同時按送出時，讓每人在不同時間點到達 API，避免同時撞牆
-    time.sleep(random.uniform(0, 3))
-
+    # ── 【雪崩防護 v2】已移除前置 sleep，改由 retry backoff 處理，不凍結畫面 ──
     for attempt in range(MAX_RETRIES):
         try:
             # ── 確保 worksheet 存在 ──────────────────────────────────
@@ -375,24 +389,49 @@ def get_saved_progress(student_id, week):
 # ══════════════════════════════════════════════════════════════════════
 # 成績查詢（快取版，55人同時查詢只打 1 次 API）
 # ══════════════════════════════════════════════════════════════════════
-@st.cache_data(ttl=300)
 def _get_sheet_titles():
-    """快取工作表清單（5 分鐘更新一次）"""
+    """
+    取得工作表清單。
+    ★ 不使用 @st.cache_data：失敗時的空列表 [] 會被快取 5 分鐘，
+      導致期間內所有查詢都拿到空結果。
+    改用 session_state 手動快取，只有成功結果才寫入。
+    """
+    import time as _t
+    _KEY    = "_sheet_titles_v2"
+    _TS_KEY = "_sheet_titles_v2_ts"
+    _TTL    = 60   # 成功結果快取 60 秒
+
+    cached  = st.session_state.get(_KEY)
+    last_ts = st.session_state.get(_TS_KEY, 0)
+
+    if cached and (_t.monotonic() - last_ts) < _TTL:
+        return cached
+
     try:
-        return [ws.title for ws in _get_spreadsheet().worksheets()]
+        titles = [ws.title for ws in _get_spreadsheet().worksheets()]
+        if titles:
+            st.session_state[_KEY]    = titles
+            st.session_state[_TS_KEY] = _t.monotonic()
+        return titles
     except Exception:
-        return []
+        return cached if cached else []
 
 
 def get_all_scores(student_id):
     """
     查詢該同學所有週次成績。
     完全使用快取，55人同時查詢只需 API 1 次。
+    回傳 (results, error_msg)：
+      - results: list，成功時為成績列表（可能為空）
+      - error_msg: str or None，有錯誤時說明原因
     """
     student_id_str = str(student_id).strip()
     results = []
 
     titles = _get_sheet_titles()
+    if not titles:
+        return [], "無法取得工作表清單，請稍後再試（Google Sheets API 連線異常）"
+
     for title in titles:
         if title in ("Students", "測驗密碼", "總成績彙整", "互動成績彙整"):
             continue
@@ -421,40 +460,11 @@ def get_all_scores(student_id):
             continue
 
     results.sort(key=lambda x: x["week"])
-    return results
+    return results, None
 
 
 # ══════════════════════════════════════════════════════════════════════
-# 【送出冷卻防護】防止同學連續重複按送出加劇 429 問題
-# 在各週頁面的送出按鈕前呼叫 can_submit()，成功後呼叫 mark_submitted()
+# 注意：can_submit / mark_submitted / seconds_until_retry
+# 已於 v2.1 廢棄，冷卻邏輯統一由 utils/week_submit.py 的
+# render_ia_section() 內部處理，請勿在週課頁面直接呼叫。
 # ══════════════════════════════════════════════════════════════════════
-def can_submit(key: str, cooldown_sec: int = 15) -> bool:
-    """
-    判斷是否可以送出（冷卻時間內不允許重複按）。
-    key: 唯一識別字串，例如 "w2_ia" 或 "w2_quiz"
-    cooldown_sec: 冷卻秒數，預設 15 秒
-
-    用法：
-        if can_submit("w2_ia"):
-            # 執行送出邏輯
-            ...
-        else:
-            st.warning("⏳ 請稍候 15 秒再重新送出，系統正在處理中...")
-    """
-    ts_key = f"__submit_ts_{key}"
-    last_ts = st.session_state.get(ts_key, 0)
-    return (time.monotonic() - last_ts) >= cooldown_sec
-
-
-def mark_submitted(key: str):
-    """送出後記錄時間戳，啟動冷卻計時"""
-    st.session_state[f"__submit_ts_{key}"] = time.monotonic()
-
-
-def seconds_until_retry(key: str, cooldown_sec: int = 15) -> int:
-    """回傳還需等幾秒才能重試（0 = 可以送出）"""
-    ts_key = f"__submit_ts_{key}"
-    last_ts = st.session_state.get(ts_key, 0)
-    elapsed = time.monotonic() - last_ts
-    remaining = cooldown_sec - elapsed
-    return max(0, int(remaining))

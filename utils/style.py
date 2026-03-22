@@ -9,7 +9,7 @@ F_TICK = 18
 F_ANNOTATION = 20   
 
 def apply_theme():
-    """全域樣式注入 (終極暴力破解法，直接強制放大底層標籤)"""
+    """全域樣式注入 (移除了版面寬度強制綁定，恢復 Streamlit 原生自動滿版擴展)"""
     st.markdown("""
     <style>
     /* ══════════════════════════════════════════════
@@ -143,14 +143,9 @@ def apply_theme():
         color: #334155 !important;
     }
 
-    /* ── 側邊欄寬度 ── */
-    section[data-testid="stSidebar"] {
-        width: 240px !important;
-        min-width: 240px !important;
-    }
-    section[data-testid="stSidebar"] > div {
-        width: 240px !important;
-    }
+    /* ── 側邊欄寬度限制：移除所有強制設定，完全交由 Streamlit 原生處理 ──
+       任何對 sidebar width / block-container / margin-left 的強制設定
+       都會破壞 Streamlit 的原生收合/展開 layout 行為，請勿添加。 */
 
     /* ── 側邊欄自動頁面導覽列：縮小字體、減少 padding ── */
     [data-testid="stSidebarNav"] li a span,
