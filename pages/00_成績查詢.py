@@ -116,19 +116,32 @@ with st.container(border=True, key="gq_container"):
 import time as _time
 
 # ── session state 初始化 ─────────────────────────────────────────────
-if "gq_cooling"  not in st.session_state: st.session_state["gq_cooling"]  = False
-if "gq_remain"   not in st.session_state: st.session_state["gq_remain"]   = 0
+if "gq_cool_end_ts" not in st.session_state: st.session_state["gq_cool_end_ts"] = 0
 if "gq_last_records" not in st.session_state: st.session_state["gq_last_records"] = None
 if "gq_last_name"    not in st.session_state: st.session_state["gq_last_name"]    = ""
 if "gq_last_id"      not in st.session_state: st.session_state["gq_last_id"]      = ""
+if "gq_last_api_err" not in st.session_state: st.session_state["gq_last_api_err"] = None
 
 # ── 定義成績顯示函式（按鈕內和 rerun 後共用）───────────────────────
 def _show_results():
-    records = st.session_state["gq_last_records"]
-    q_name  = st.session_state["gq_last_name"]
-    q_id    = st.session_state["gq_last_id"]
-    q_time  = st.session_state.get("gq_last_time", "")
+    records  = st.session_state["gq_last_records"]
+    q_name   = st.session_state["gq_last_name"]
+    q_id     = st.session_state["gq_last_id"]
+    q_time   = st.session_state.get("gq_last_time", "")
+    _api_err = st.session_state.get("gq_last_api_err")
     if records is None:
+        return
+
+    # ── 若 API 發生錯誤，優先顯示警告 ────────────────────────────────
+    if _api_err:
+        st.markdown(
+            '<div style="border-radius:10px;border:1px solid #fde68a;margin:8px 0;">' +
+            '<div style="background:#d97706;border-radius:10px 10px 0 0;padding:9px 16px;">' +
+            '<span style="color:white;font-weight:700;">⚠️ 成績讀取異常</span></div>' +
+            '<div style="background:#fffbeb;border-radius:0 0 10px 10px;' +
+            'padding:12px 16px;color:#92400e;">' +
+            _api_err + '<br><span style="font-size:0.88rem;">請點選「🔄 重新整理狀態」後再次查詢，或聯繫授課教師。</span></div></div>',
+            unsafe_allow_html=True)
         return
 
     import re as _re
@@ -136,20 +149,7 @@ def _show_results():
         m = _re.match(r'(Week \d+)', title.strip())
         return m.group(1) if m else None
 
-    _valid_week_count = len(set(
-        w for r in records for w in [_to_week(r["week"])] if w
-    ))
-    st.markdown(
-        '<div style="border-radius:10px;border:1px solid #bbf7d0;margin:12px 0 6px 0;">' +
-        '<div style="background:#15803d;border-radius:10px 10px 0 0;padding:9px 16px;">' +
-        '<span style="color:white;font-weight:700;">✅ 驗證成功</span></div>' +
-        '<div style="background:#f0fdf4;border-radius:0 0 10px 10px;' +
-        'padding:10px 16px;color:#166534;font-size:0.95rem;">' +
-        "已找到 <b>" + q_name + "</b>（" + q_id +
-        "）的成績記錄，共 <b>" + str(_valid_week_count) + "</b> 週。" +
-        ('<span style="color:#94a3b8;font-size:0.82rem;margin-left:10px;">查詢時間：' + q_time + '</span>' if q_time else '') +
-        '</div></div>', unsafe_allow_html=True)
-
+    # ── records 為空：直接顯示「尚無記錄」，不顯示「共 0 週」────────
     if not records:
         st.markdown(
             '<div style="border-radius:10px;border:1px solid #e2e8f0;margin:8px 0;">' +
@@ -173,6 +173,21 @@ def _show_results():
         _wk = _to_week(_t)
         if _wk: _week_set.add(_wk)
     all_weeks = sorted(_week_set)
+
+    # ── 有記錄才顯示「共 N 週」────────────────────────────────────────
+    _valid_week_count = len(set(
+        w for r in records for w in [_to_week(r["week"])] if w
+    ))
+    st.markdown(
+        '<div style="border-radius:10px;border:1px solid #bbf7d0;margin:12px 0 6px 0;">' +
+        '<div style="background:#15803d;border-radius:10px 10px 0 0;padding:9px 16px;">' +
+        '<span style="color:white;font-weight:700;">✅ 驗證成功</span></div>' +
+        '<div style="background:#f0fdf4;border-radius:0 0 10px 10px;' +
+        'padding:10px 16px;color:#166534;font-size:0.95rem;">' +
+        "已找到 <b>" + q_name + "</b>（" + q_id +
+        "）的成績記錄，共 <b>" + str(_valid_week_count) + "</b> 週。" +
+        ('<span style="color:#94a3b8;font-size:0.82rem;margin-left:10px;">查詢時間：' + q_time + '</span>' if q_time else '') +
+        '</div></div>', unsafe_allow_html=True)
 
     ia_map, quiz_map = {}, {}
     for r in records:
@@ -236,18 +251,17 @@ def _show_results():
         )
     st.markdown(table + rows + '</tbody></table>', unsafe_allow_html=True)
 
-# ── 倒數期間：倒數在按鈕位置，成績在下方 ───────────────────────────
-if st.session_state["gq_cooling"]:
-    _remain = st.session_state["gq_remain"]
-    if _remain <= 1:
-        st.session_state["gq_cooling"] = False
-        st.session_state["gq_remain"]  = 0
-    else:
-        st.info(f"⏳ {_remain} 秒後可再次查詢")
-        _show_results()
-        st.session_state["gq_remain"] = _remain - 1
+# ── 冷卻判斷：用時間戳計算，不用 sleep 阻塞頁面 ─────────────────────
+_now_ts = _time.monotonic()
+_cool_end = st.session_state.get("gq_cool_end_ts", 0)
+_in_cool  = _now_ts < _cool_end
+
+if _in_cool:
+    _remain_sec = max(0, int(_cool_end - _now_ts))
+    st.info(f"⏳ {_remain_sec} 秒後可再次查詢")
+    _show_results()
     _time.sleep(1)
-    st.rerun()   # 不管倒數結束或繼續，都 rerun 觸發重新渲染
+    st.rerun()
 
 # ── 正常狀態：顯示查詢按鈕 ──────────────────────────────────────────
 else:
@@ -275,17 +289,22 @@ else:
                     unsafe_allow_html=True)
             else:
                 with st.spinner("📊 讀取成績中，請稍候…"):
-                    records = get_all_scores(q_id)
+                    _score_result = get_all_scores(q_id)
+                    # get_all_scores 現在回傳 (list, error_msg or None)
+                    if isinstance(_score_result, tuple):
+                        records, _api_err = _score_result
+                    else:
+                        records, _api_err = _score_result, None
                 import datetime as _dt
-                st.session_state["gq_last_records"] = records
-                st.session_state["gq_last_name"]    = q_name
-                st.session_state["gq_last_id"]      = q_id
-                st.session_state["gq_last_time"]    = _dt.datetime.now().strftime("%H:%M:%S")
-                st.session_state["gq_cooling"]      = True
-                st.session_state["gq_remain"]       = 10
+                st.session_state["gq_last_records"]  = records
+                st.session_state["gq_last_name"]     = q_name
+                st.session_state["gq_last_id"]       = q_id
+                st.session_state["gq_last_time"]     = _dt.datetime.now().strftime("%H:%M:%S")
+                st.session_state["gq_last_api_err"]  = _api_err
+                st.session_state["gq_cool_end_ts"]   = _time.monotonic() + 10
                 st.rerun()
 
-    # 若有上次成績顯示在按鈕下方
+    # 冷卻結束後顯示上次查詢結果
     if st.session_state["gq_last_records"] is not None:
         _show_results()
 
