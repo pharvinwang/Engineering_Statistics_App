@@ -352,7 +352,7 @@ with tab1:
         annotation_font_color='#ef4444', annotation_font_size=13
     )
     # ④ 面積標示
-    _p_ab = round(float(np.trapz(_f_sh, _x_sh)), 4)
+    _p_ab = round(float(np.trapezoid(_f_sh, _x_sh)), 4)
     fig_pdf_demo.add_annotation(
         x=100, y=0.004,
         text=f'<b>面積 = P[50≤X≤150]<br>= {_p_ab}</b>',
