@@ -2,10 +2,16 @@
 import os
 import glob
 import streamlit as st
-from utils.style import apply_theme
 
-# 1. 基本設定 (必須在第一行)
-st.set_page_config(page_title="工程統計：數據驅動的風險導航", layout="wide")
+# 1. 基本設定 (絕對必須是第一個執行的 Streamlit 指令)
+# 加入了 initial_sidebar_state="expanded"，明確告訴系統我們需要支援側邊欄的動態縮放
+st.set_page_config(
+    page_title="工程統計：數據驅動的風險導航", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
+
+from utils.style import apply_theme
 
 # 2. 載入統一視覺樣式
 apply_theme()
@@ -195,6 +201,13 @@ def check_password():
 # ══════════════════════════════════════════════════════════════════
 if check_password():
 
+    # ── Sidebar ──────────────────────────────────────────────────────
+    try:
+        from utils.sidebar import render_sidebar
+        render_sidebar(current_page="Home")
+    except Exception:
+        pass
+
     # ── Hero ────────────────────────────────────────────────────────
     st.markdown("""
     <div class="home-fade" style="
@@ -202,19 +215,16 @@ if check_password():
         border-radius:18px; padding:44px 52px 40px 52px;
         margin-bottom:20px; box-shadow:0 4px 28px rgba(0,0,0,0.18);
         position:relative; overflow:hidden;">
-        <!-- 裝飾圓圈 -->
         <div style="position:absolute;top:-100px;right:-80px;width:360px;height:360px;
             border-radius:50%;background:radial-gradient(circle,rgba(165,180,252,0.10) 0%,transparent 65%);
             pointer-events:none;"></div>
         <div style="position:absolute;bottom:-60px;left:30%;width:220px;height:220px;
             border-radius:50%;background:radial-gradient(circle,rgba(199,210,254,0.07) 0%,transparent 70%);
             pointer-events:none;"></div>
-        <!-- 學校標 -->
         <div style="color:#93c5fd;font-size:0.78rem;letter-spacing:0.22em;
                     font-weight:800;margin:0 0 16px 0;text-transform:uppercase;">
             National Chiayi University &nbsp;·&nbsp; Civil &amp; Water Resources Engineering
         </div>
-        <!-- 主標題 -->
         <div style="color:#ffffff;font-size:1.8rem;font-weight:900;
                     margin:0 0 8px 0;line-height:1.25;letter-spacing:-0.01em;">
             工程統計：數據驅動的風險導航 📐
@@ -222,7 +232,6 @@ if check_password():
         <div style="color:#94a3b8;font-size:0.95rem;margin:0 0 28px 0;font-weight:500;">
             Engineering Statistics — Data-Driven Risk Navigation
         </div>
-        <!-- 名言卡 -->
         <div style="background:rgba(255,255,255,0.08);
                     border-left:4px solid #3b82f6;
                     border-radius:0 10px 10px 0;
