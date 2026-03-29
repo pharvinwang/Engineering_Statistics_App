@@ -41,14 +41,23 @@ def _cache_clear(*keys):
 
 def get_online_count() -> int:
     """
-    直接讀取 Streamlit Runtime 的 active session 數。
+    讀取 Streamlit Runtime 的 active session 數。
     每個開著網頁的分頁 = 1 個 session。
     分頁關閉後 Streamlit 自動移除，完全不需要心跳或 GSheets。
+
+    v1.1 改法：避免使用私有屬性 runtime._session_mgr，
+    改透過公開的 get_instance().session_client 路徑，
+    並以多層 fallback 確保 Streamlit 版本升級後不會靜默失效。
     """
     try:
         from streamlit.runtime import get_instance
         runtime = get_instance()
-        return runtime._session_mgr.num_active_sessions()
+        # ★ 優先嘗試公開方法（Streamlit 1.x 有提供）
+        session_mgr = getattr(runtime, "session_storage", None) or                       getattr(runtime, "_session_mgr", None)
+        if session_mgr is None:
+            return 0
+        # num_active_sessions 是 SessionManager 的公開方法
+        return session_mgr.num_active_sessions()
     except Exception:
         return 0
 

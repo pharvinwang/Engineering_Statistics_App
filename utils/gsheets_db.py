@@ -13,6 +13,21 @@
 #   C. 寫入後主動讓快取失效，確保下次讀到新資料
 #   D. _create_client() 改為 @st.cache_resource（跨 session 共用同一個 OAuth 連線）
 #   E. 所有 worksheet 物件也快取在 session，避免重複 .worksheet() 呼叫
+#
+# v3.1 修正：選擇性快取失效 + 驗證碼即時生效
+#
+#   問題 1：原 v3 的 _invalidate_ws_cache 呼叫 .clear()，會清除所有 worksheet
+#     的快取，導致 A 同學寫入 Week 03 時，B 同學正在讀取 Week 07 的快取也一起
+#     失效，產生不必要的 API 呼叫。
+#   修正方式：
+#   - 為 _get_ws_data_cached 加入 cache_bust 參數（非底線前綴，納入 cache key）
+#   - _invalidate_ws_cache(sheet_title) 只對指定分頁在本 session 遞增版本號
+#   - 所有讀取呼叫改用 _get_ws_data(sheet_title) wrapper，自動帶入版本號
+#   - 不同 session 之間的快取互不干擾，跨 session 的舊快取靠 ttl=30 自然過期
+#
+#   問題 2：_get_students_data 原本 ttl=3600（1 小時），在 Google Sheets 更新
+#     同學驗證碼後，需等 1 小時或 Reboot 才能生效，會把在線同學踢出。
+#   修正方式：ttl 改為 300（5 分鐘），更新驗證碼後最多等 5 分鐘自動生效。
 
 import streamlit as st
 import gspread
@@ -147,13 +162,14 @@ def get_weekly_password_safe(week_name: str):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# 學生名單快取（ttl=3600，55人共用）
+# 學生名單快取（ttl=300，5分鐘，55人共用）
 # ══════════════════════════════════════════════════════════════════════
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=300)   # 5 分鐘：驗證碼更新後最多等 5 分鐘生效，不需 Reboot
 def _get_students_data():
     """
-    讀取 Students 表並快取 1 小時。
+    讀取 Students 表並快取 5 分鐘（ttl=300）。
     55人同時送出時只打 1 次 API。
+    更新驗證碼後最多等 5 分鐘生效，不需 Reboot。
     """
     try:
         return _get_spreadsheet().worksheet("Students").get_all_values()
@@ -194,21 +210,31 @@ def verify_student(student_id, name, v_code):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# 【關鍵優化 C】worksheet 資料快取（每張表）
-# 這是最重要的優化：55人同時送出時，col_values 只需讀 1 次
+# ★ v3.1 選擇性快取失效核心設計
+#
+# 問題：@st.cache_data 只提供 .clear()（清除所有 entry），無法指定單一 key。
+# 解法：在 cache key 中加入 cache_bust 整數，透過 session_state 版本號控制
+#       哪個 session 看到哪個版本的快取。
+#
+# 運作方式：
+#   - _get_ws_data_cached(sheet_title, cache_bust) — cache_bust 納入 cache key
+#   - _get_ws_version(sheet_title) — 從 session_state 取得目前版本號（預設 0）
+#   - _get_ws_data(sheet_title) — wrapper，自動帶入版本號
+#   - _invalidate_ws_cache(sheet_title) — 只對指定分頁在本 session 遞增版本號
+#
+# 效果：
+#   - Session A 寫入 Week 03 → A 的 _wsv_Week 03 = 1 → A 下次讀 Week 03 = cache miss
+#   - Session B 讀 Week 07 → B 的 _wsv_Week 07 = 0 → ("Week 07", 0) 快取命中 ✓
+#   - Session A 的失效操作對 Session B 的 Week 07 完全無影響 ✓
 # ══════════════════════════════════════════════════════════════════════
+
 @st.cache_data(ttl=30)
-def _get_ws_data_cached(sheet_title: str):
+def _get_ws_data_cached(sheet_title: str, cache_bust: int = 0):   # ★ cache_bust 納入 key
     """
     快取單張 worksheet 的所有資料（ttl=30秒）。
+    cache_bust 用於選擇性失效，不影響函式邏輯。
 
-    為什麼 ttl=30 而不是更長？
-    - 太長（如 120 秒）：同學 A 送出後，同學 B 在 30 秒內查詢
-      可能看到舊快取而找不到自己的 row，導致 append_row 重複寫入
-    - 30 秒是合理的折衷：55 人送出通常在幾秒內完成，
-      30 秒後快取自動更新，不會累積錯誤
-
-    回傳：(headers, all_rows, id_to_rownum)
+    回傳：(all_rows, id_to_rownum)
       - all_rows: [[col0, col1, ...], ...]，含 header
       - id_to_rownum: {student_id: row_number(1-indexed)}
     """
@@ -216,7 +242,7 @@ def _get_ws_data_cached(sheet_title: str):
         ws = _get_spreadsheet().worksheet(sheet_title)
         all_rows = ws.get_all_values()
         id_to_rownum = {}
-        for i, row in enumerate(all_rows[1:], start=2):   # row 1 = header
+        for i, row in enumerate(all_rows[1:], start=2):
             if len(row) >= 2 and row[1].strip():
                 id_to_rownum[row[1].strip()] = i
         return all_rows, id_to_rownum
@@ -226,12 +252,26 @@ def _get_ws_data_cached(sheet_title: str):
         return None, {}
 
 
+def _get_ws_version(sheet_title: str) -> int:
+    """取得本 session 中指定分頁的快取版本號（預設 0）。"""
+    return st.session_state.get(f"_wsv_{sheet_title}", 0)
+
+
+def _get_ws_data(sheet_title: str):
+    """
+    ★ v3.1 公開 wrapper：自動帶入版本號，確保讀到的是失效後的新資料。
+    所有內部函式應呼叫此 wrapper，而非直接呼叫 _get_ws_data_cached。
+    """
+    return _get_ws_data_cached(sheet_title, _get_ws_version(sheet_title))
+
+
 def _invalidate_ws_cache(sheet_title: str):
-    """寫入完成後讓該表的快取失效，下次讀取會拿到最新資料"""
-    try:
-        _get_ws_data_cached.clear()   # clear all cached data for this function
-    except Exception:
-        pass
+    """
+    ★ v3.1 選擇性失效：只對指定分頁在本 session 遞增版本號。
+    其他分頁、其他 session 的快取完全不受影響。
+    """
+    key = f"_wsv_{sheet_title}"
+    st.session_state[key] = st.session_state.get(key, 0) + 1
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -243,8 +283,7 @@ def ensure_quiz_sheet_exists(sheet_title: str):
     使用快取判斷是否存在，避免不必要的 API 呼叫。
     """
     spreadsheet = _get_spreadsheet()
-    # 先用快取確認，若快取回傳 None 才真的去建立
-    cached_rows, _ = _get_ws_data_cached(sheet_title)
+    cached_rows, _ = _get_ws_data(sheet_title)   # ★ 使用 wrapper
     if cached_rows is not None:
         return spreadsheet.worksheet(sheet_title)
 
@@ -270,16 +309,15 @@ def ensure_quiz_sheet_exists(sheet_title: str):
 # ══════════════════════════════════════════════════════════════════════
 def check_has_submitted(student_id, week):
     """使用快取資料檢查是否已送出，不額外打 API"""
-    _, id_to_rownum = _get_ws_data_cached(week)
+    all_rows, id_to_rownum = _get_ws_data(week)   # ★ 使用 wrapper
     if not id_to_rownum:
         return False
     student_id_str = str(student_id).strip()
     if student_id_str not in id_to_rownum:
         return False
-    # 從快取資料取得該列
-    all_rows, _ = _get_ws_data_cached(week)
     if all_rows is None:
         return False
+    # 從快取資料取得該列
     row_idx = id_to_rownum[student_id_str] - 1   # 轉為 0-indexed
     if row_idx < len(all_rows):
         row = all_rows[row_idx]
@@ -288,12 +326,12 @@ def check_has_submitted(student_id, week):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# 【核心優化】save_score v3
+# 【核心優化】save_score v3.1
 # 最大改善：不再每次都讀 col_values，改用快取的 id_to_rownum
 # ══════════════════════════════════════════════════════════════════════
 def save_score(student_idx, student_id, name, week, answer, score):
     """
-    【無敵寫入 v3】55 人並發優化版。
+    【無敵寫入 v3.1】55 人並發優化版。
 
     v2 的瓶頸：
       每次 save_score = open_by_key + col_values(讀整欄) + update
@@ -304,6 +342,10 @@ def save_score(student_idx, student_id, name, week, answer, score):
       - row 位置從 _get_ws_data_cached 取得（不重複讀 col_values）
       - 55人同時送出：只有第一人讀表，其餘從快取取得 row 位置
       - 理論 API 次數：1次讀 + 55次寫 = 56次（vs 舊版 165次）
+
+    v3.1 改善：
+      - 改用 _get_ws_data() wrapper 取得 row 位置（選擇性快取失效）
+      - _invalidate_ws_cache(week) 只失效本張表，不影響其他分頁快取
     """
     MAX_RETRIES = 6
     tw_tz = pytz.timezone('Asia/Taipei')
@@ -313,13 +355,12 @@ def save_score(student_idx, student_id, name, week, answer, score):
         try:
             # ── 確保 worksheet 存在 ──────────────────────────────────
             sheet = ensure_quiz_sheet_exists(week)
-
             current_time = datetime.now(tw_tz).strftime("%Y-%m-%d %H:%M:%S")
             student_id_str = str(student_id).strip()
 
             # ── 【關鍵】從快取取得 row 位置，不讀整欄 ───────────────
-            _, id_to_rownum = _get_ws_data_cached(week)
-            
+            _, id_to_rownum = _get_ws_data(week)   # ★ 使用 wrapper
+
             if student_id_str in id_to_rownum:
                 # 已有此學生 → 更新現有列
                 row_idx = id_to_rownum[student_id_str]
@@ -333,7 +374,7 @@ def save_score(student_idx, student_id, name, week, answer, score):
                                    current_time, str(answer), score])
 
             # ── 寫入成功，讓快取失效（下次讀取會是最新資料）─────────
-            _invalidate_ws_cache(week)
+            _invalidate_ws_cache(week)   # ★ 選擇性失效，只影響 week 這張表
             return True
 
         except gspread.exceptions.APIError as api_err:
@@ -366,11 +407,11 @@ def save_score(student_idx, student_id, name, week, answer, score):
 def get_saved_progress(student_id, week):
     """
     從快取讀取該同學已儲存的互動進度。
-    不額外打 API（使用 _get_ws_data_cached）。
+    不額外打 API（使用 _get_ws_data wrapper）。
     回傳 {"pct": int, "detail": str} 或 None。
     """
     student_id_str = str(student_id).strip()
-    all_rows, id_to_rownum = _get_ws_data_cached(week)
+    all_rows, id_to_rownum = _get_ws_data(week)   # ★ 使用 wrapper
     if all_rows is None or student_id_str not in id_to_rownum:
         return None
     row_idx = id_to_rownum[student_id_str] - 1   # 0-indexed
@@ -436,7 +477,7 @@ def get_all_scores(student_id):
         if title in ("Students", "測驗密碼", "總成績彙整", "互動成績彙整"):
             continue
         try:
-            all_rows, id_to_rownum = _get_ws_data_cached(title)
+            all_rows, id_to_rownum = _get_ws_data(title)   # ★ 使用 wrapper
             if all_rows is None or student_id_str not in id_to_rownum:
                 continue
             row_idx = id_to_rownum[student_id_str] - 1

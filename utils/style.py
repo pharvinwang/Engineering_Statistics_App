@@ -1,15 +1,19 @@
 # 檔案位置： D:\Engineering_Statistics_App\utils\style.py
+# v1.1：移除重複的 CSS 規則
+#   - stCaptionContainer p 出現兩次（1.0rem / 1.05rem 衝突），保留 1.05rem
+#   - stMarkdownContainer p/li/td/th 出現兩次，合併為一條（含 span）
+
 import streamlit as st
 
-# ── 共用 Plotly 字體大小設定 (完美大圖表不重疊設定) ─────
-F_GLOBAL = 18       
-F_TITLE = 24        
-F_AXIS = 20         
-F_TICK = 18         
-F_ANNOTATION = 20   
+# ── 共用 Plotly 字體大小設定 ─────────────────────────────────────────
+F_GLOBAL     = 18
+F_TITLE      = 24
+F_AXIS       = 20
+F_TICK       = 18
+F_ANNOTATION = 20
 
 def apply_theme():
-    """全域樣式注入 (移除了版面寬度強制綁定，恢復 Streamlit 原生自動滿版擴展)"""
+    """全域樣式注入（移除了版面寬度強制綁定，恢復 Streamlit 原生自動滿版擴展）"""
     st.markdown("""
     <style>
     /* ══════════════════════════════════════════════
@@ -17,43 +21,40 @@ def apply_theme():
        ══════════════════════════════════════════════ */
 
     /* ── st.title() / st.header() / st.subheader() 正確選擇器 ── */
-    div[data-testid="stHeading"] h1,
-    h1[id] {
+    div[data-testid="stHeading"] h1, h1[id] {
         font-size: 2.2rem !important;
         font-weight: 800 !important;
         line-height: 1.3 !important;
     }
-    div[data-testid="stHeading"] h2,
-    h2[id] {
+    div[data-testid="stHeading"] h2, h2[id] {
         font-size: 1.8rem !important;
         font-weight: 700 !important;
         line-height: 1.3 !important;
     }
-    div[data-testid="stHeading"] h3,
-    h3[id] {
+    div[data-testid="stHeading"] h3, h3[id] {
         font-size: 1.5rem !important;
         font-weight: 700 !important;
         line-height: 1.4 !important;
     }
 
-    /* ── 一般段落 / st.write() / st.markdown() ── */
+    /* ── 一般段落 / Markdown（含 span，合併原本兩條重複規則）── */
     div[data-testid="stMarkdownContainer"] p,
     div[data-testid="stMarkdownContainer"] li,
     div[data-testid="stMarkdownContainer"] td,
-    div[data-testid="stMarkdownContainer"] th {
-        font-size: 1.15rem !important;
+    div[data-testid="stMarkdownContainer"] th,
+    div[data-testid="stMarkdownContainer"] span {
+        font-size: 1.2rem !important;
         line-height: 1.7 !important;
     }
 
-    /* ── st.caption() ── */
+    /* ── st.caption()（保留較大值 1.05rem，移除重複的 1.0rem）── */
     div[data-testid="stCaptionContainer"] p {
-        font-size: 1.0rem !important;
+        font-size: 1.05rem !important;
     }
 
     /* ── Widget 深藍色標籤 (slider / input / selectbox ...) ── */
     div[data-testid="stWidgetLabel"] p,
-    div[data-testid="stWidgetLabel"] label,
-    div[data-testid="stWidgetLabel"] p {
+    div[data-testid="stWidgetLabel"] label {
         font-size: 1.2rem !important;
         line-height: 1.6 !important;
     }
@@ -90,25 +91,10 @@ def apply_theme():
         line-height: 1.7 !important;
     }
 
-    /* ── st.caption() ── */
-    div[data-testid="stCaptionContainer"] p {
-        font-size: 1.05rem !important;
-    }
-
     /* ── st.metric() ── */
     div[data-testid="metric-container"] label,
     div[data-testid="metric-container"] p { font-size: 1.1rem !important; }
     div[data-testid="stMetricValue"] { font-size: 1.4rem !important; font-weight: 700 !important; }
-
-    /* ── st.write() 一般文字 ── */
-    div[data-testid="stMarkdownContainer"] p,
-    div[data-testid="stMarkdownContainer"] li,
-    div[data-testid="stMarkdownContainer"] td,
-    div[data-testid="stMarkdownContainer"] th,
-    div[data-testid="stMarkdownContainer"] span {
-        font-size: 1.2rem !important;
-        line-height: 1.7 !important;
-    }
 
     /* ── st.code() ── */
     div[data-testid="stCode"] pre,
@@ -158,22 +144,18 @@ def apply_theme():
         color: #334155 !important;
         line-height: 1.4 !important;
     }
-    [data-testid="stSidebarNav"] li {
-        padding: 1px 0 !important;
-    }
-    [data-testid="stSidebarNav"] a {
-        padding: 4px 8px !important;
-    }
+    [data-testid="stSidebarNav"] li { padding: 1px 0 !important; }
+    [data-testid="stSidebarNav"] a  { padding: 4px 8px !important; }
 
     /* ── 自訂卡片與徽章 ── */
-    .concept-box { background: linear-gradient(135deg, #1e3a5f 0%, #0f2440 100%); border-left: 4px solid #3b82f6; border-radius: 8px; padding: 16px 20px; margin: 12px 0; color: #e2e8f0; font-size: 1.0rem; line-height: 1.7; }
-    .why-box { background: linear-gradient(135deg, #1a3a2a 0%, #0d2218 100%); border-left: 4px solid #22c55e; border-radius: 8px; padding: 14px 18px; margin: 10px 0; color: #d1fae5; font-size: 1.0rem; line-height: 1.7; }
-    .formula-box { background: #1e1b4b; border: 1px solid #4f46e5; border-radius: 8px; padding: 14px 18px; margin: 10px 0; text-align: center; color: #c7d2fe; font-size: 1.2rem; line-height: 1.6; }
+    .concept-box  { background: linear-gradient(135deg, #1e3a5f 0%, #0f2440 100%); border-left: 4px solid #3b82f6; border-radius: 8px; padding: 16px 20px; margin: 12px 0; color: #e2e8f0; font-size: 1.0rem; line-height: 1.7; }
+    .why-box      { background: linear-gradient(135deg, #1a3a2a 0%, #0d2218 100%); border-left: 4px solid #22c55e; border-radius: 8px; padding: 14px 18px; margin: 10px 0; color: #d1fae5; font-size: 1.0rem; line-height: 1.7; }
+    .formula-box  { background: #1e1b4b; border: 1px solid #4f46e5; border-radius: 8px; padding: 14px 18px; margin: 10px 0; text-align: center; color: #c7d2fe; font-size: 1.2rem; line-height: 1.6; }
     .discover-box { background: linear-gradient(135deg, #3a1a00 0%, #1f0e00 100%); border-left: 4px solid #f97316; border-radius: 8px; padding: 14px 18px; margin: 10px 0; color: #fed7aa; font-size: 1.0rem; line-height: 1.7; }
-    .step-badge { display: inline-block; background: #3b82f6; color: white; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; font-weight: bold; margin-right: 8px; }
+    .step-badge   { display: inline-block; background: #3b82f6; color: white; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; font-weight: bold; margin-right: 8px; }
 
     /* ── 6. 您的自訂淺色大表格 ── */
-    .big-table { border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px; background-color: white; }
+    .big-table { border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; margin-bottom: 20px; background-color: white; }
     .big-table table { width: 100%; font-size: 1.2rem !important; border-collapse: collapse; text-align: center; margin-bottom: 0; }
     .big-table th { background-color: #f8fafc; color: #475569; text-align: center !important; padding: 14px; border-bottom: 2px solid #e2e8f0; font-weight: 700; font-size: 1.2rem !important; }
     .big-table td { padding: 14px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 1.2rem !important; }
@@ -189,15 +171,19 @@ def apply_theme():
     </style>
     """, unsafe_allow_html=True)
 
+
 def set_chart_layout(fig, title_text=None, x_title=None, y_title=None):
     """共用圖表佈局設定器"""
     layout_updates = dict(font=dict(size=F_GLOBAL))
     if title_text:
         layout_updates['title'] = dict(text=title_text, font=dict(size=F_TITLE))
     if x_title:
-        layout_updates['xaxis'] = dict(title=dict(text=x_title, font=dict(size=F_AXIS)), tickfont=dict(size=F_TICK))
+        layout_updates['xaxis'] = dict(
+            title=dict(text=x_title, font=dict(size=F_AXIS)),
+            tickfont=dict(size=F_TICK))
     if y_title:
-        layout_updates['yaxis'] = dict(title=dict(text=y_title, font=dict(size=F_AXIS)), tickfont=dict(size=F_TICK))
-    
+        layout_updates['yaxis'] = dict(
+            title=dict(text=y_title, font=dict(size=F_AXIS)),
+            tickfont=dict(size=F_TICK))
     fig.update_layout(**layout_updates)
     return fig
