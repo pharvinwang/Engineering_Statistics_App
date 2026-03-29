@@ -105,11 +105,12 @@ for k in TRACK_KEYS:
         st.session_state["w5_track_" + k] = False
 
 # 滑桿初始值記錄（偵測是否真正移動過）
+# ★ 注意：此處數值必須與各 st.slider(..., value=...) 的預設值完全一致
 _SLIDER_INIT = {
-    "w5_mu":     100.0,
-    "w5_sigma":  1.0,
-    "w5_lambda_poisson": 2.0,
-    "w5_t_poisson":      1,
+    "w5_mu":     1.000,   # slider value=1.000（吋）
+    "w5_sigma":  0.001,   # slider value=0.001（吋）
+    "w5_lambda_poisson": 600,   # slider value=600（輛/小時）
+    "w5_t_poisson":      12,    # slider value=12（秒）
     "w5_lambda_exp":     0.4,
     "w5_t_exp":          1.0,
     "w5_lam_weibull":    0.1,
